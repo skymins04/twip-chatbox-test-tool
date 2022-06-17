@@ -1,0 +1,158 @@
+* {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+html {
+  margin: 0;
+  padding: 0;
+  width: 300px;
+  height: 400px;
+}
+
+body {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+}
+
+.header {
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 40px;
+  padding-bottom: 20px;
+}
+
+.header img {
+  width: 30px;
+  height: 30px;
+  border-radius: 5px;
+}
+
+.header h1 {
+  font-size: 16px;
+}
+
+.content {
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  height: 100%;
+}
+
+.content #start-btn {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  font-size: 32px;
+  font-weight: bolder;
+  color: white;
+  -webkit-transition: 0.1s;
+  transition: 0.1s;
+}
+
+.content #start-btn:hover {
+  cursor: pointer;
+  -webkit-box-shadow: 0 0 5px #999;
+          box-shadow: 0 0 5px #999;
+  font-size: 33px !important;
+}
+
+.content #start-btn.on {
+  background-color: #801fe8;
+}
+
+.content #start-btn.off {
+  background-color: #999;
+}
+
+.content #start-btn.blocked {
+  background-color: #ccc;
+}
+
+.content #start-btn.blocked:hover {
+  cursor: not-allowed !important;
+}
+
+.content #start-btn.on::before {
+  content: "STOP";
+}
+
+.content #start-btn.off::before {
+  content: "START";
+}
+
+.content .btns {
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  width: 100%;
+}
+
+.content .btns .btn {
+  color: white;
+  background-color: #ccc;
+  font-size: 14px;
+  padding: 0.5em;
+  border-radius: 4px;
+  white-space: nowrap;
+  -webkit-transition: 0.2s;
+  transition: 0.2s;
+}
+
+.content .btns .btn:hover {
+  cursor: not-allowed;
+  -webkit-box-shadow: 0 0 5px #999;
+          box-shadow: 0 0 5px #999;
+}
+
+.content .btns.active .btn {
+  background-color: #9f59e9 !important;
+}
+
+.content .btns.active .btn:hover {
+  cursor: pointer !important;
+}
+/*# sourceMappingURL=popup.css.map */
