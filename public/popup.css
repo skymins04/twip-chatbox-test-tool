@@ -155,4 +155,27 @@ body {
 .content .btns.active .btn:hover {
   cursor: pointer !important;
 }
+
+.content .options {
+  padding: 0 50px;
+}
+
+.content .options li {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  margin-bottom: 5px;
+}
+
+.content .options li input[type="number"] {
+  width: 70px;
+}
 /*# sourceMappingURL=popup.css.map */

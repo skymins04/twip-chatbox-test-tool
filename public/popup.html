@@ -20,10 +20,26 @@
     <div class="content">
       <div id="start-btn" class="off"></div>
       <span id="state-msg"></span>
+      <ul class="options">
+        <li>
+          채팅 간격 :
+          <input type="number" id="input-interval" step="1" min="10" /> ms
+        </li>
+        <li>
+          채팅 간격 랜덤 오프셋 :
+          <input type="checkbox" id="input-chk-interval-offset" /><input
+            type="number"
+            id="input-interval-offset"
+            step="1"
+            min="10"
+          />
+          ms
+        </li>
+      </ul>
       <div class="btns">
-        <div class="btn">CLEAR</div>
-        <div class="btn">IMPORT</div>
-        <div class="btn">EXPORT</div>
+        <div id="clear-btn" class="btn">CLEAR</div>
+        <div id="import-btn" class="btn">IMPORT</div>
+        <div id="export-btn" class="btn">EXPORT</div>
       </div>
     </div>
     <script src="popup.js"></script>
