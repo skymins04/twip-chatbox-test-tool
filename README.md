@@ -30,3 +30,19 @@
 심사 완료 후 스토어 게시가 완료되면 업데이트 될 예정입니다.
 
 ### 3-2. 압축파일을 이용하여 설치
+
+[최신 릴리즈](https://github.com/skymins04/twip-chatbox-test-tool/releases/tag/main)의 압축파일을 다운로드 받은 후 해당 압축파일을 크롬 브라우저 확장프로그램관리에서 **"개발자 모드"** 를 활성화한 뒤, **"압축해제된 확장 프로그램을 로드합니다."** 를 선택 후 압축파일을 압축해제한 폴더를 선택하여 설치합니다.
+
+### 3-3. 직접 빌드하여 설치
+
+빌드를 위해선 Node 및 NPM 개발환경이 필요합니다.  
+아래 명령으로 소스를 빌드해주세요.
+
+```
+$ git clone https://github.com/skymins04/twip-chatbox-test-tool.git
+$ cd twip-chatbox-test-tool
+$ npm install (또는 yarn install)
+$ npm run build (또는 yarn run build)
+```
+
+빌드가 완료되면 크롬 브라우저 확장프로그램관리에서 **"개발자 모드"** 를 활성화한 뒤, **"압축해제된 확장 프로그램을 로드합니다."** 를 선택 후 빌드로 생성된 **"dist" 폴더** 를 선택하여 설치합니다.
