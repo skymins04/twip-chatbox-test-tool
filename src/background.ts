@@ -188,7 +188,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
               "returning-chatter": false,
               "room-id": "testid",
               subscriber: false,
-              turbo: false,
+              turbo: true,
               "user-id": "testturbo",
               "user-type": null,
               username: "testturbo",
@@ -217,6 +217,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 69: ["12-12", "14-14"],
                 86: ["16-16", "18-18"],
               },
+            },
+            { msg: ":귀여운돼끼_1:", emotes: null },
+            { msg: ":귀여운돼끼_2:", emotes: null },
+            { msg: ":귀여운돼끼_3:", emotes: null },
+            {
+              msg: "채팅테스트 메시지입니다! 블라블라블라블라~~",
+              emotes: null,
             },
           ];
 
