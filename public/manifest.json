@@ -1,7 +1,7 @@
 {
   "name": "Twip chatbox test tool",
   "description": "Twip Chatbox의 테스트 채팅을 생성하는 크롬확장입니다.",
-  "version": "1.0",
+  "version": "0.0.0.1",
   "manifest_version": 3,
   "permissions": ["tabs", "scripting", "alarms"],
   "host_permissions": ["https://twip.kr/*"],
