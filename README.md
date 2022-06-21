@@ -26,8 +26,9 @@
 
 ### 3-1. 크롬웹스토어를 이용하여 설치
 
-현재 크롬 웹스토어에 확장프로그램을 게시하는 심사를 거치는 중입니다.  
-심사 완료 후 스토어 게시가 완료되면 업데이트 될 예정입니다.
+크롬웹스토어에 게시된 [**"Twip chatbox test tool"**](https://chrome.google.com/webstore/detail/twip-chatbox-test-tool/dmpokkhjjinmldokleiiibigbieikdoa) 확장프로그램을 "Chrome에 추가" 버튼을 클릭하여 크롬 브라우저에 간편히 설치할 수 있습니다
+
+![Twip Chatbox test tool Chrome WebStore](/readme/readme_1.png)
 
 ### 3-2. 압축파일을 이용하여 설치
 
