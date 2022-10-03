@@ -66,6 +66,12 @@ body {
   height: 100%;
 }
 
+.content .go-to-twip {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
 .content #start-btn {
   display: -webkit-box;
   display: -ms-flexbox;

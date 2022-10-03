@@ -49,6 +49,12 @@ body {
   width: 100%;
   height: 100%;
 
+  .go-to-twip {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
   #start-btn {
     display: flex;
     justify-content: center;

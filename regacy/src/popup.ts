@@ -13,9 +13,10 @@ type StoreKeyType =
   | "randomOffset";
 let isReady = false;
 let tabId: number | undefined;
+
 const startBtn = $("#start-btn");
 const clearBtn = $("#clear-btn");
-const importBtn = $("#import-btn");
+const messagesBtn = $("#messages-btn");
 const exportBtn = $("#export-btn");
 const intervalInput = $("#input-interval");
 const intervalOffsetInput = $("#input-interval-offset");

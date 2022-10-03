@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Twip Chatbox test tool</title>
+    <link rel="stylesheet" href="popup.css" />
+    <script src="lib/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <div class="header">
+      <img
+        src="https://static-cdn.jtvnw.net/jtv_user_pictures/c415d8c2-e5f8-47ba-871f-c15dcb479850-profile_image-300x300.png"
+        alt=""
+        srcset=""
+      />
+      <h1>Twip Chatbox test tool</h1>
+    </div>
+    <div class="content">
+      <a class="go-to-twip" href="https://twip.kr">Twip 바로가기</a>
+      <div id="start-btn" class="off"></div>
+      <span id="state-msg"></span>
+      <ul class="options">
+        <li>
+          기본 채팅 간격 :
+          <input type="number" id="input-interval" step="1" min="10" /> ms
+        </li>
+        <li>
+          채팅 간격 랜덤 오프셋 :
+          <input type="checkbox" id="input-chk-interval-offset" /><input
+            type="number"
+            id="input-interval-offset"
+            step="1"
+            min="10"
+          />
+          ms
+        </li>
+      </ul>
+      <div class="btns">
+        <div id="clear-btn" class="btn">CLEAR</div>
+        <div id="messages-btn" class="btn">MESSAGES</div>
+        <div id="export-btn" class="btn">EXPORT</div>
+      </div>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>

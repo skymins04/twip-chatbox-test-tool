@@ -1,0 +1,34 @@
+html,
+body {
+  position: relative;
+  height: max-content;
+  padding: 0;
+  margin: 0;
+}
+html {
+  width: 300px;
+}
+body {
+  width: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --global-padding-30: 30px;
+  --global-padding-20: 20px;
+  --global-padding-10: 10px;
+  --global-padding-5: 5px;
+  --theme-color-1: 140, 16, 241;
+}
+
+@keyframes opacity-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
