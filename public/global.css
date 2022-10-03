@@ -23,3 +23,12 @@ body {
   --global-padding-5: 5px;
   --theme-color-1: 140, 16, 241;
 }
+
+@keyframes opacity-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

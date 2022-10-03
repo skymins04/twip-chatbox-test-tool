@@ -6,6 +6,7 @@
     TabPanel,
     TabPanels
   } from '@rgossiaux/svelte-headlessui';
+  import ChatTestTab from '@components/tabs/ChatTestTab.svelte';
 </script>
 
 <div class="main-wrap">
@@ -16,7 +17,7 @@
       <Tab class="main-tab-btn">설정</Tab>
     </TabList>
     <TabPanels class="main-tab-panels">
-      <TabPanel>채팅테스트</TabPanel>
+      <TabPanel><ChatTestTab /></TabPanel>
       <TabPanel>오버레이</TabPanel>
       <TabPanel>설정</TabPanel>
     </TabPanels>

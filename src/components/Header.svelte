@@ -13,16 +13,16 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 20px;
+    gap: 10px;
     padding: var(--global-padding-20);
     box-shadow: 0 4px 5px -4px #d4d4d4;
 
     img {
-      width: 32px;
-      height: 32px;
+      width: 24px;
+      height: 24px;
     }
     span {
-      font-size: 16px;
+      font-size: 18px;
       font-weight: bold;
     }
   }
