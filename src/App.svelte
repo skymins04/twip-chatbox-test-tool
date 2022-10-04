@@ -2,7 +2,7 @@
 	import Header from "@components/Header.svelte";
   import Main from "@components/Main.svelte";
   import {useEffect} from "./lib/hooks";
-  import { currentTabId, isVaildcurrentPage, selectedChatTestType } from "./store";
+  import { currentTabId, isVaildcurrentPage, selectedChatTestType } from "@lib/store";
 
 	const init = () => {
 		isVaildcurrentPage.set("");

@@ -1,4 +1,4 @@
-import type { ChatTestType } from "./global";
+import type { ChatTestType } from "@src/global";
 
 export const CHAT_TEST_TYPES: Array<ChatTestType> = [
   { id: 1, type: "트윕 오버레이 테스트", unavailable: false },

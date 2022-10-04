@@ -9,8 +9,8 @@ import {
   isRandomChatTestDelayOffset,
   isVaildcurrentPage,
   randomChatTestDelayOffset,
-  userTypeFilter,
-} from "@src/store";
+  testUserTypeFilter,
+} from "@lib/store";
 import { get } from "svelte/store";
 
 export function getChromeRuntimeSendMessageParam(
@@ -24,7 +24,7 @@ export function getChromeRuntimeSendMessageParam(
     randomFlag: get(isRandomChatTestDelayOffset),
     randomOffset: get(randomChatTestDelayOffset),
     tabId: get(currentTabId),
-    userTypeFilter: get(userTypeFilter),
+    testUserTypeFilter: get(testUserTypeFilter),
   };
 }
 

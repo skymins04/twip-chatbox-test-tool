@@ -1,12 +1,15 @@
 <script lang="ts">
   import { Dialog, DialogDescription, DialogOverlay, DialogTitle, Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@rgossiaux/svelte-headlessui";
-  import { CHAT_TEST_ALERT_TEXT, CHAT_TEST_TYPES, LOCALSTORAGE_KEYS } from "@src/constant";
+  import { CHAT_TEST_ALERT_TEXT, CHAT_TEST_TYPES, LOCALSTORAGE_KEYS } from "@src/lib/constant";
   import InputNumber from "../InputNumber.svelte";
-  import { chatTestBtnState, defaultChatTestDelay, isRandomChatTestDelayOffset, isVaildcurrentPage, randomChatTestDelayOffset, selectedChatTestType, currentTabId } from "@src/store";
+  import { chatTestBtnState, defaultChatTestDelay, isRandomChatTestDelayOffset, isVaildcurrentPage, randomChatTestDelayOffset, selectedChatTestType, testUserTypeFilter } from "@lib/store";
   import {useEffect} from "@src/lib/hooks";
   import { sendMsgToChromeRuntime } from "@src/lib/functions";
+  import type { UserTypeFilter } from "@src/global";
 
   let isOpenClearOverlayDialog = false;
+  let isOpenSettingTestUserFilter = false;
+  let tmpTestUserTypeFilter: UserTypeFilter;
 
   defaultChatTestDelay.subscribe(value => {
     localStorage.setItem(LOCALSTORAGE_KEYS.chatTestDelay, value.toString());
@@ -24,10 +27,29 @@
   useEffect(() => {
     sendMsgToChromeRuntime("chat-control");
   }, () => [$chatTestBtnState, $defaultChatTestDelay, $isRandomChatTestDelayOffset, $randomChatTestDelayOffset]);
+
+  useEffect(() => {
+    if($chatTestBtnState) {
+      chatTestBtnState.set(false);
+      sendMsgToChromeRuntime("chat-control");
+      chatTestBtnState.set(true);
+      sendMsgToChromeRuntime("chat-control"); 
+    }
+  }, () => [$testUserTypeFilter]);
+
+  useEffect(() => {
+    if(isOpenSettingTestUserFilter) {
+      tmpTestUserTypeFilter = $testUserTypeFilter;
+      console.log(tmpTestUserTypeFilter);
+    }
+    else {
+      tmpTestUserTypeFilter = null;
+    }
+  }, () => [isOpenSettingTestUserFilter]);
 </script>
 
 <div class="chat-test-tap-wrap">
-  <Listbox value={$selectedChatTestType} on:change={(e) => {$selectedChatTestType = e.detail}} class="chat-test-type-select"> 
+  <Listbox value={$selectedChatTestType} on:change={(e) => {$chatTestBtnState = false; $selectedChatTestType = e.detail}} class="chat-test-type-select"> 
     <ListboxButton class="chat-test-type-select-btn">
       <span>{$selectedChatTestType.type}</span>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="w-5 h-5 text-gray-400"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg></ListboxButton>
@@ -44,7 +66,7 @@
     <div class="alert-text">{CHAT_TEST_ALERT_TEXT[$isVaildcurrentPage]}</div>
   {/if}
 
-  <div class={`chat-test-btn ${$isVaildcurrentPage === "" ? "" : "disabled"} ${$chatTestBtnState ? 'active' : ''}`} 
+  <div class={`chat-test-btn ${$isVaildcurrentPage !== "" ? "disabled" : ""} ${$chatTestBtnState ? 'active' : ''}`} 
     on:click={() => {
       if($isVaildcurrentPage === "") {
         chatTestBtnState.set(!$chatTestBtnState);
@@ -69,13 +91,13 @@
       </div>
     </div>
     <div class="chat-test-options-item">
-      <span class="title">테스트유저유형</span>
+      <span class="title">테스트 유저 유형 설정</span>
       <div class="input">
-        <div class="btn">목록열기</div>
+        <div class={`btn ${$selectedChatTestType.id !== 1 ? 'disabled' : ''}`} on:click={() => {if($selectedChatTestType.id === 1) isOpenSettingTestUserFilter = true;}}>목록열기</div>
       </div>
     </div>
     <div class="chat-test-options-item">
-      <span class="title">테스트메시지목록</span>
+      <span class="title">테스트 메시지 설정</span>
       <div class="input">
         <div class="btn">목록열기</div>
       </div>
@@ -83,21 +105,74 @@
     <div class="chat-test-options-item">
       <span class="title">오버레이 화면 초기화</span>
       <div class="input">
-        <div class={`btn ${$isVaildcurrentPage === "" ? "" : "disabled"}`} on:click={() => {if($isVaildcurrentPage === "") isOpenClearOverlayDialog = true;}}>초기화</div>
+        <div class={`btn ${$isVaildcurrentPage !== "" || $selectedChatTestType.id !== 1 ? "disabled" : ""}`} on:click={() => {if($isVaildcurrentPage === "" && $selectedChatTestType.id === 1) isOpenClearOverlayDialog = true;}}>초기화</div>
       </div>
     </div>
   </div>
   
 
-  {#if isOpenClearOverlayDialog}
+  {#if isOpenClearOverlayDialog || isOpenSettingTestUserFilter}
     <div style={"display:block; width: 100%; height: 100%; position: fixed !important; top: 0; left: 0; background-color: rgba(0, 0, 0, .3); animation: opacity-fade .2s ease-in-out;"}></div>
   {/if}
   <Dialog class="dialog" open={isOpenClearOverlayDialog} on:close={() => {isOpenClearOverlayDialog = false;}}>
     <DialogOverlay/>
     <DialogTitle>오버레이 화면 초기화</DialogTitle>
-    <DialogDescription>오버레이에 발행된 모든 채팅 메시지를 제거하시겠습니까?</DialogDescription>
+    <DialogDescription>오버레이에 발행된 모든 테스트 메시지를 제거하시겠습니까?</DialogDescription>
     <div class="btn" on:click={() => {sendMsgToChromeRuntime('clear-chat'); isOpenClearOverlayDialog = false;}}>확인</div>
     <div class="btn" on:click={() => {isOpenClearOverlayDialog = false;}}>취소</div>
+  </Dialog>
+  <Dialog class="dialog" open={isOpenSettingTestUserFilter} on:close={() => {isOpenSettingTestUserFilter = false;}}>
+    <DialogOverlay/>
+    <DialogTitle>테스트 유저 유형 설정</DialogTitle>
+    <DialogDescription>채팅 테스트에 사용될 테스트 유저의 유형별 표시 여부를 설정할 수 있습니다.</DialogDescription>
+
+    <div class="dialog-options">
+      {#if tmpTestUserTypeFilter}
+        <div class="dialog-options-item">
+          <span class="title">일반시청자</span>
+          <div class="input"><input type="checkbox" id="chat-test-user-type-normal" bind:checked={tmpTestUserTypeFilter['normal']}><label for="chat-test-user-type-normal"></label></div>
+        </div>
+        <div class="dialog-options-item">
+          <span class="title"><img class="icon" src="/icon/broadcaster.png" alt=""/>브로드케스터</span>
+          <div class="input"><input type="checkbox" id="chat-test-user-type-broadcaster" bind:checked={tmpTestUserTypeFilter['broadcaster']}><label for="chat-test-user-type-broadcaster"></label></div>
+        </div>
+        <div class="dialog-options-item">
+          <span class="title"><img class="icon" src="/icon/moderator.png" alt=""/>모더레이터</span>
+          <div class="input"><input type="checkbox" id="chat-test-user-type-moderator" bind:checked={tmpTestUserTypeFilter['moderator']}><label for="chat-test-user-type-moderator"></label></div>
+        </div>
+        <div class="dialog-options-item">
+          <span class="title"><img class="icon" src="/icon/partner.png" alt=""/>파트너</span>
+          <div class="input"><input type="checkbox" id="chat-test-user-type-partner" bind:checked={tmpTestUserTypeFilter['partner']}><label for="chat-test-user-type-partner"></label></div>
+        </div>
+        <div class="dialog-options-item">
+          <span class="title">구독자</span>
+          <div class="input"><input type="checkbox" id="chat-test-user-type-subscriber" bind:checked={tmpTestUserTypeFilter['subscriber']}><label for="chat-test-user-type-subscriber"></label></div>
+        </div>
+        <div class="dialog-options-item">
+          <span class="title"><img class="icon" src="/icon/turbo.png" alt=""/>터보</span>
+          <div class="input"><input type="checkbox" id="chat-test-user-type-turbo" bind:checked={tmpTestUserTypeFilter['turbo']}><label for="chat-test-user-type-turbo"></label></div>
+        </div>
+        <div class="dialog-options-item">
+          <span class="title"><img class="icon" src="/icon/premium.png" alt=""/>프리미엄</span>
+          <div class="input"><input type="checkbox" id="chat-test-user-type-premium" bind:checked={tmpTestUserTypeFilter['premium']}><label for="chat-test-user-type-premium"></label></div>
+        </div>
+        <div class="dialog-options-item">
+          <span class="title"><img class="icon" src="/icon/bits.png" alt=""/>비트</span>
+          <div class="input"><input type="checkbox" id="chat-test-user-type-bits" bind:checked={tmpTestUserTypeFilter['bits']}><label for="chat-test-user-type-bits"></label></div>
+        </div>
+        <div class="dialog-options-item">
+          <span class="title"><img class="icon" src="/icon/admin.png" alt=""/>어드민</span>
+          <div class="input"><input type="checkbox" id="chat-test-user-type-admin" bind:checked={tmpTestUserTypeFilter['admin']}><label for="chat-test-user-type-admin"></label></div>
+        </div>
+        <div class="dialog-options-item">
+          <span class="title"><img class="icon" src="/icon/staff.png" alt=""/>스태프</span>
+          <div class="input"><input type="checkbox" id="chat-test-user-type-staff" bind:checked={tmpTestUserTypeFilter['staff']}><label for="chat-test-user-type-staff"></label></div>
+        </div>
+      {/if}
+    </div>
+
+    <div class="btn" on:click={() => {testUserTypeFilter.set({...tmpTestUserTypeFilter}); localStorage.setItem(LOCALSTORAGE_KEYS.userTypeFilter,JSON.stringify($testUserTypeFilter)); isOpenSettingTestUserFilter = false;}}>저장</div>
+    <div class="btn" on:click={() => {isOpenSettingTestUserFilter = false;}}>취소</div>
   </Dialog>
 </div>
 

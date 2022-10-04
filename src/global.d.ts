@@ -4,17 +4,25 @@ export interface TwitchBadge {
   broadcaster?: string;
   moderator?: string;
   partner?: string;
-  subcriber?: string;
+  subscriber?: string;
   turbo?: string;
+  premium?: string;
+  bits?: string;
+  admin?: string;
+  staff?: string;
 }
 
 export type TwitchUserType =
   | "broadcaster"
   | "moderator"
   | "partner"
-  | "subcriber"
+  | "subscriber"
   | "turbo"
-  | "normal";
+  | "normal"
+  | "premium"
+  | "bits"
+  | "admin"
+  | "staff";
 
 export interface TwipUser {
   type: TwitchUserType;
@@ -66,5 +74,5 @@ export interface ChromeRuntimeSendMessageRequest {
   randomFlag: boolean;
   randomOffset: number;
   tabId: number | null;
-  userTypeFilter: UserTypeFilter;
+  testUserTypeFilter: UserTypeFilter;
 }

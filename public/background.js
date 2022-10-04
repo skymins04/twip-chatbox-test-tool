@@ -1,26 +1,3 @@
-const intervals = {};
-const chatControls = {};
-class CustomInterval {
-    constructor(callback, senderId) {
-        this.timer = null;
-        this.callback = callback;
-        this.senderId = senderId;
-        this.set();
-    }
-    set() {
-        this.timer = setTimeout(async () => {
-            await this.callback();
-            await this.set();
-        }, chatControls[this.senderId].offsetFlag
-            ? chatControls[this.senderId].intervalTime +
-                chatControls[this.senderId].offsetTime * Math.random()
-            : chatControls[this.senderId].intervalTime);
-    }
-    clear() {
-        if (this.timer)
-            clearTimeout(this.timer);
-    }
-}
 const testTwitchUserProfiles = [
     {
         type: "normal",
@@ -162,6 +139,102 @@ const testTwitchUserProfiles = [
             username: "testturbo",
         },
     },
+    {
+        type: "premium",
+        userData: {
+            badges: {
+                premium: "1",
+            },
+            "badges-raw": "premium/1",
+            color: null,
+            "display-name": "testpremium",
+            emotes: null,
+            "emotes-raw": null,
+            "first-msg": false,
+            id: "testid",
+            "message-type": "chat",
+            mod: false,
+            "returning-chatter": false,
+            "room-id": "testid",
+            subscriber: false,
+            turbo: true,
+            "user-id": "testpremium",
+            "user-type": null,
+            username: "testpremium",
+        },
+    },
+    {
+        type: "bits",
+        userData: {
+            badges: {
+                bits: "1",
+            },
+            "badges-raw": "bits/1",
+            color: null,
+            "display-name": "testbits",
+            emotes: null,
+            "emotes-raw": null,
+            "first-msg": false,
+            id: "testid",
+            "message-type": "chat",
+            mod: false,
+            "returning-chatter": false,
+            "room-id": "testid",
+            subscriber: false,
+            turbo: true,
+            "user-id": "testbits",
+            "user-type": null,
+            username: "testbits",
+        },
+    },
+    {
+        type: "admin",
+        userData: {
+            badges: {
+                admin: "1",
+            },
+            "badges-raw": "admin/1",
+            color: null,
+            "display-name": "testadmin",
+            emotes: null,
+            "emotes-raw": null,
+            "first-msg": false,
+            id: "testid",
+            "message-type": "chat",
+            mod: false,
+            "returning-chatter": false,
+            "room-id": "testid",
+            subscriber: false,
+            turbo: true,
+            "user-id": "testadmin",
+            "user-type": null,
+            username: "testadmin",
+        },
+    },
+    {
+        type: "staff",
+        userData: {
+            badges: {
+                staff: "1",
+            },
+            "badges-raw": "staff/1",
+            color: null,
+            "display-name": "teststaff",
+            emotes: null,
+            "emotes-raw": null,
+            "first-msg": false,
+            id: "testid",
+            "message-type": "chat",
+            mod: false,
+            "returning-chatter": false,
+            "room-id": "testid",
+            subscriber: false,
+            turbo: true,
+            "user-id": "teststaff",
+            "user-type": null,
+            username: "teststaff",
+        },
+    },
 ];
 const getTestTwitchUserProfile = (filter) => {
     const userProfiles = filter
@@ -202,14 +275,37 @@ const testTwipMsgProfiles = [
     },
 ];
 const getTestTwipMsgProfile = () => testTwipMsgProfiles[Math.floor(Math.random() * testTwipMsgProfiles.length)];
+
+const chatControls = {};
+class CustomInterval {
+    constructor(callback, senderId) {
+        this.timer = null;
+        this.callback = callback;
+        this.senderId = senderId;
+        this.set();
+    }
+    set() {
+        this.timer = setTimeout(async () => {
+            await this.callback();
+            await this.set();
+        }, chatControls[this.senderId].offsetFlag
+            ? chatControls[this.senderId].intervalTime +
+                chatControls[this.senderId].offsetTime * Math.random()
+            : chatControls[this.senderId].intervalTime);
+    }
+    clear() {
+        if (this.timer)
+            clearTimeout(this.timer);
+    }
+}
+const intervals = {};
 chrome.alarms.create({ periodInMinutes: 4.9 });
 chrome.alarms.onAlarm.addListener(() => {
     console.log("log for debug");
 });
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (sender.id) {
-        if (request.type === "tool-start") ;
-        else if (request.type === "chat-control") {
+        if (request.type === "chat-control") {
             console.log("run chat-control");
             const senderId = sender.id;
             chatControls[senderId] = {
@@ -220,14 +316,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             if (request.runningState) {
                 if (!intervals[senderId]) {
                     const interval = new CustomInterval(async () => {
-                        const testUser = getTestTwitchUserProfile(request.userTypeFilter);
+                        const testUser = getTestTwitchUserProfile(request.testUserTypeFilter);
                         const testMsg = getTestTwipMsgProfile();
                         chrome.scripting.executeScript({
                             target: {
                                 tabId: request.tabId,
                             },
                             func: (testUser, testMsg) => {
-                                console.log("user-data", testUser.userData);
+                                const userData = testUser.userData;
                                 let rawStr = "";
                                 let i = 0;
                                 if (testMsg.emotes !== null) {
@@ -245,12 +341,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                         rawStr += str;
                                         i += 1;
                                     }
-                                    testUser.userData["emotes-raw"] = rawStr;
-                                    console.log(rawStr);
+                                    userData["emotes-raw"] = rawStr;
                                 }
-                                testUser.userData["emotes"] = testMsg.emotes;
-                                console.log(testUser.userData["emotes"]);
-                                window.ChatBox.processMessage(null, testUser.userData, testMsg.msg);
+                                userData["emotes"] = testMsg.emotes;
+                                window.ChatBox.processMessage(null, userData, testMsg.msg);
                             },
                             args: [testUser, testMsg],
                             world: "MAIN",
