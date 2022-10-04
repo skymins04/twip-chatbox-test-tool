@@ -2,7 +2,7 @@ import type { ChatTestType } from "./global";
 
 export const CHAT_TEST_TYPES: Array<ChatTestType> = [
   { id: 1, type: "트윕 오버레이 테스트", unavailable: false },
-  { id: 2, type: "트위치 테스트", unavailable: false },
+  { id: 2, type: "트위치 채팅 테스트", unavailable: false },
 ];
 
 export const CHAT_TEST_ALERT_TEXT = {

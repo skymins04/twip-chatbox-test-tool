@@ -113,5 +113,6 @@ export default [
     output: {
       file: "public/background.js",
     },
+    plugins: [typescript()],
   },
 ];

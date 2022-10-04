@@ -1,8 +1,11 @@
 <script lang="ts">
-  import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@rgossiaux/svelte-headlessui";
+  import { Dialog, DialogDescription, DialogOverlay, DialogTitle, Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@rgossiaux/svelte-headlessui";
   import { CHAT_TEST_ALERT_TEXT, CHAT_TEST_TYPES, LOCALSTORAGE_KEYS } from "@src/constant";
   import InputNumber from "../InputNumber.svelte";
-  import { chatTestBtnState, defaultChatTestDelay, isRandomChatTestDelayOffset, isVaildcurrentPage, randomChatTestDelayOffset, selectedChatTestType } from "@src/store";
+  import { chatTestBtnState, defaultChatTestDelay, isRandomChatTestDelayOffset, isVaildcurrentPage, randomChatTestDelayOffset, selectedChatTestType, currentTabId } from "@src/store";
+  import useEffect from "@src/lib/useEffect";
+
+  let isOpenClearOverlayDialog = false;
 
   defaultChatTestDelay.subscribe(value => {
     localStorage.setItem(LOCALSTORAGE_KEYS.chatTestDelay, value.toString());
@@ -16,6 +19,19 @@
   isRandomChatTestDelayOffset.subscribe(value => {
     localStorage.setItem(LOCALSTORAGE_KEYS.isChatTestRandomDelayOffset, JSON.stringify(value));
   });
+
+  useEffect(() => {
+    chrome.runtime.sendMessage({
+      type: "chat-control",
+      tabActivate: $isVaildcurrentPage,
+      runningState: $chatTestBtnState,
+      intervalTime: $defaultChatTestDelay,
+      randomFlag: $isRandomChatTestDelayOffset,
+      randomOffset: $randomChatTestDelayOffset, 
+      tabId: $currentTabId
+    });
+
+  }, () => [$chatTestBtnState]);
 </script>
 
 <div class="chat-test-tap-wrap">
@@ -40,6 +56,7 @@
     on:click={() => {
       if($isVaildcurrentPage === "") {
         chatTestBtnState.set(!$chatTestBtnState);
+        localStorage.setItem(LOCALSTORAGE_KEYS.chatTestBtnState, JSON.stringify($chatTestBtnState));
       }
     }}>
   </div>
@@ -62,23 +79,31 @@
     <div class="chat-test-options-item">
       <span class="title">테스트유저유형</span>
       <div class="input">
-        <div class="btn">설정열기</div>
+        <div class="btn">목록열기</div>
       </div>
     </div>
     <div class="chat-test-options-item">
       <span class="title">테스트메시지목록</span>
       <div class="input">
-        <div class="btn">설정열기</div>
+        <div class="btn">목록열기</div>
       </div>
     </div>
     <div class="chat-test-options-item">
       <span class="title">오버레이 화면 초기화</span>
       <div class="input">
-        <div class="btn">초기화</div>
+        <div class="btn" on:click={() => {isOpenClearOverlayDialog = true;}}>초기화</div>
       </div>
     </div>
   </div>
   
+
+  <Dialog class="dialog" open={isOpenClearOverlayDialog} on:close={() => {isOpenClearOverlayDialog = false;}}>
+    <DialogOverlay />
+    <DialogTitle>오버레이 화면 초기화</DialogTitle>
+    <DialogDescription>오버레이에 발행된 모든 채팅 메시지를 제거하시겠습니까?</DialogDescription>
+    <button>확인</button>
+    <button on:click={() => {isOpenClearOverlayDialog = false;}}>취소</button>
+  </Dialog>
 </div>
 
 <style lang="scss">
@@ -249,11 +274,9 @@
           }
           input[type="checkbox"]:checked + label::after {
             content:'✓';
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 12px;
             animation: opacity-fade .2s ease-in-out;
             position: relative;
-            top: 2px;
           }
 
           .btn {
