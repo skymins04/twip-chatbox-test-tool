@@ -1,6 +1,6 @@
 import { writable } from "svelte/store";
 import { CHAT_TEST_TYPES, LOCALSTORAGE_KEYS } from "./constant";
-import type { ChatTestType } from "./global";
+import type { ChatTestType, UserTypeFilter } from "./global";
 
 (() => {
   if (!localStorage.getItem(LOCALSTORAGE_KEYS.chatTestType))
@@ -19,6 +19,18 @@ import type { ChatTestType } from "./global";
     );
   if (!localStorage.getItem(LOCALSTORAGE_KEYS.chatTestBtnState))
     localStorage.setItem(LOCALSTORAGE_KEYS.chatTestBtnState, "false");
+  if (!localStorage.getItem(LOCALSTORAGE_KEYS.userTypeFilter))
+    localStorage.setItem(
+      LOCALSTORAGE_KEYS.userTypeFilter,
+      JSON.stringify({
+        broadcaster: true,
+        moderator: true,
+        partner: true,
+        subcriber: true,
+        turbo: true,
+        normal: true,
+      } as UserTypeFilter)
+    );
 })();
 
 export const selectedChatTestType = writable<ChatTestType>(
@@ -37,6 +49,10 @@ export const isRandomChatTestDelayOffset = writable<boolean>(
   JSON.parse(
     localStorage.getItem(LOCALSTORAGE_KEYS.isChatTestRandomDelayOffset)
   )
+);
+
+export const userTypeFilter = writable<UserTypeFilter>(
+  JSON.parse(localStorage.getItem(LOCALSTORAGE_KEYS.userTypeFilter))
 );
 
 export const chatTestBtnState = writable<boolean>(

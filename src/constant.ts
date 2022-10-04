@@ -16,4 +16,5 @@ export const LOCALSTORAGE_KEYS = {
   chatTestDelay: "3",
   chatTestRandomDelayOffset: "4",
   isChatTestRandomDelayOffset: "5",
+  userTypeFilter: "6",
 };

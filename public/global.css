@@ -56,4 +56,35 @@ body {
   background-color: white;
   animation: dialog-intro 0.2s ease-in-out;
   box-shadow: 0 3px 10px -5px #666;
+  z-index: 20;
+}
+
+input[type="checkbox"] {
+  display: none;
+}
+input[type="checkbox"] + label {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 23px;
+  height: 23px;
+  border: 1px solid #eee;
+  border-radius: 7px;
+  box-shadow: 0 2px 5px -2px #ccc;
+  color: rgb(var(--theme-color-1));
+  transition: 0.2s;
+}
+input[type="checkbox"]:checked + label {
+  background-color: #f3e7fe;
+  border: 1px solid #f3e7fe;
+}
+input[type="checkbox"] + label:hover {
+  cursor: pointer;
+}
+input[type="checkbox"]:checked + label::after {
+  content: "✓";
+  font-size: 12px;
+  animation: opacity-fade 0.2s ease-in-out;
+  position: relative;
 }

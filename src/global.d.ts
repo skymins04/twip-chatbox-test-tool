@@ -1,7 +1,70 @@
 /// <reference types="svelte" />
 
+export interface TwitchBadge {
+  broadcaster?: string;
+  moderator?: string;
+  partner?: string;
+  subcriber?: string;
+  turbo?: string;
+}
+
+export type TwitchUserType =
+  | "broadcaster"
+  | "moderator"
+  | "partner"
+  | "subcriber"
+  | "turbo"
+  | "normal";
+
+export interface TwipUser {
+  type: TwitchUserType;
+  userData: {
+    badges: TwitchBadge | null;
+    "badges-raw": string | null;
+    color: string | null;
+    "display-name": string;
+    emotes: Object | null;
+    "emotes-raw": string | null;
+    "first-msg": boolean;
+    id: string;
+    "message-type": string;
+    mod: boolean;
+    "returning-chatter": boolean;
+    "room-id": string;
+    subscriber: boolean;
+    turbo: boolean;
+    "user-id": string;
+    "user-type": string | null;
+    username: string;
+  };
+}
+
+export interface TwipMsg {
+  msg: string;
+  emotes: {
+    [key: number]: Array<string>;
+  } | null;
+}
+
 export interface ChatTestType {
   id: number;
   type: string;
   unavailable: boolean;
+}
+export type ChromeRuntimeSendMessageType =
+  | "tool-start"
+  | "chat-control"
+  | "clear-chat";
+export interface UserTypeFilter {
+  [key: TwitchUserType]: boolean;
+}
+export interface ChromeRuntimeSendMessageRequest {
+  type: ChromeRuntimeSendMessageType;
+  tabActivate: boolean;
+  runningState: boolean;
+  intervalTime: number;
+  randomFlag: boolean;
+  randomOffset: number;
+  tabId: number | null;
+  userTypeFilter: UserTypeFilter;
 }

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Header from "@components/Header.svelte";
   import Main from "@components/Main.svelte";
-  import useEffect from "./lib/useEffect";
+  import {useEffect} from "./lib/hooks";
   import { currentTabId, isVaildcurrentPage, selectedChatTestType } from "./store";
 
 	const init = () => {

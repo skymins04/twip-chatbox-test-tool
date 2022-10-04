@@ -3,7 +3,8 @@
   import { CHAT_TEST_ALERT_TEXT, CHAT_TEST_TYPES, LOCALSTORAGE_KEYS } from "@src/constant";
   import InputNumber from "../InputNumber.svelte";
   import { chatTestBtnState, defaultChatTestDelay, isRandomChatTestDelayOffset, isVaildcurrentPage, randomChatTestDelayOffset, selectedChatTestType, currentTabId } from "@src/store";
-  import useEffect from "@src/lib/useEffect";
+  import {useEffect} from "@src/lib/hooks";
+  import { sendMsgToChromeRuntime } from "@src/lib/functions";
 
   let isOpenClearOverlayDialog = false;
 
@@ -21,17 +22,8 @@
   });
 
   useEffect(() => {
-    chrome.runtime.sendMessage({
-      type: "chat-control",
-      tabActivate: $isVaildcurrentPage,
-      runningState: $chatTestBtnState,
-      intervalTime: $defaultChatTestDelay,
-      randomFlag: $isRandomChatTestDelayOffset,
-      randomOffset: $randomChatTestDelayOffset, 
-      tabId: $currentTabId
-    });
-
-  }, () => [$chatTestBtnState]);
+    sendMsgToChromeRuntime("chat-control");
+  }, () => [$chatTestBtnState, $defaultChatTestDelay, $isRandomChatTestDelayOffset, $randomChatTestDelayOffset]);
 </script>
 
 <div class="chat-test-tap-wrap">
@@ -91,18 +83,21 @@
     <div class="chat-test-options-item">
       <span class="title">오버레이 화면 초기화</span>
       <div class="input">
-        <div class="btn" on:click={() => {isOpenClearOverlayDialog = true;}}>초기화</div>
+        <div class={`btn ${$isVaildcurrentPage === "" ? "" : "disabled"}`} on:click={() => {if($isVaildcurrentPage === "") isOpenClearOverlayDialog = true;}}>초기화</div>
       </div>
     </div>
   </div>
   
 
+  {#if isOpenClearOverlayDialog}
+    <div style={"display:block; width: 100%; height: 100%; position: fixed !important; top: 0; left: 0; background-color: rgba(0, 0, 0, .3); animation: opacity-fade .2s ease-in-out;"}></div>
+  {/if}
   <Dialog class="dialog" open={isOpenClearOverlayDialog} on:close={() => {isOpenClearOverlayDialog = false;}}>
-    <DialogOverlay />
+    <DialogOverlay/>
     <DialogTitle>오버레이 화면 초기화</DialogTitle>
     <DialogDescription>오버레이에 발행된 모든 채팅 메시지를 제거하시겠습니까?</DialogDescription>
-    <button>확인</button>
-    <button on:click={() => {isOpenClearOverlayDialog = false;}}>취소</button>
+    <div class="btn" on:click={() => {sendMsgToChromeRuntime('clear-chat'); isOpenClearOverlayDialog = false;}}>확인</div>
+    <div class="btn" on:click={() => {isOpenClearOverlayDialog = false;}}>취소</div>
   </Dialog>
 </div>
 
@@ -248,65 +243,6 @@
           justify-content: flex-end;
           align-items: center;
           gap: 5px;
-
-          input[type="checkbox"] {
-            display: none;
-          }
-          input[type="checkbox"] + label {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 23px;
-            height: 23px;
-            border: 1px solid #eee;
-            border-radius: 7px;
-            box-shadow: 0 2px 5px -2px #ccc;
-            color: rgb(var(--theme-color-1));
-            transition: .2s;
-          }
-          input[type="checkbox"]:checked + label {
-            background-color: #F3E7FE;
-            border: 1px solid #F3E7FE;
-          }
-          input[type="checkbox"] + label:hover {
-            cursor: pointer;
-          }
-          input[type="checkbox"]:checked + label::after {
-            content:'✓';
-            font-size: 12px;
-            animation: opacity-fade .2s ease-in-out;
-            position: relative;
-          }
-
-          .btn {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 5px 10px 3px;
-            border-radius: 7px;
-            box-shadow: 0 2px 5px -2px #ccc;
-            background-color: #F3E7FE;
-            font-size: 12px;
-            color: rgb(var(--theme-color-1));
-            overflow: hidden;
-
-            &:hover {
-              cursor: pointer;
-            }
-            &:hover::before {
-              content: '';
-              display: block;
-              position: absolute;
-              top: 0;
-              left: 0;
-              width: 100%;
-              height: 100%;
-              background-color: rgba($color: var(--theme-color-1), $alpha: 0.1);
-              animation: opacity-fade .2s ease-in-out;
-            }
-          }
         }
       }
     }
