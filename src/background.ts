@@ -56,24 +56,32 @@ chrome.runtime.onMessage.addListener(
   (request: ChromeRuntimeSendMessageRequest, sender, sendResponse) => {
     if (sender.id) {
       if (request.type === "chat-control") {
-        console.log("run chat-control");
         const senderId = sender.id;
 
+        if (intervals[senderId]) {
+          intervals[senderId].clear();
+          intervals[senderId] = null;
+        }
         chatControls[senderId] = {
           intervalTime: request.intervalTime,
           offsetTime: request.randomOffset,
           offsetFlag: request.randomFlag,
         };
         if (request.runningState) {
-          if (!intervals[senderId]) {
-            const interval = new CustomInterval(async () => {
-              const testUser = getTestTwitchUserProfile(
-                request.testUserTypeFilter
-              );
-              const testMsg = getTestTwipMsgProfile();
+          const interval = new CustomInterval(async () => {
+            const testUser = getTestTwitchUserProfile(
+              request.testUserTypeFilter
+            );
+            const testMsg = getTestTwipMsgProfile();
+            console.log(
+              "run chat-control",
+              request.runningState,
+              request.tabId
+            );
+            if (request.tabId) {
               chrome.scripting.executeScript({
                 target: {
-                  tabId: request.tabId as number,
+                  tabId: request.tabId,
                 },
                 func: (testUser: TwipUser, testMsg: TwipMsg) => {
                   const userData = testUser.userData;
@@ -105,9 +113,9 @@ chrome.runtime.onMessage.addListener(
                 args: [testUser, testMsg],
                 world: "MAIN",
               });
-            }, senderId);
-            intervals[senderId] = interval;
-          }
+            }
+          }, senderId);
+          intervals[senderId] = interval;
         } else {
           if (intervals[senderId]) {
             intervals[senderId].clear();

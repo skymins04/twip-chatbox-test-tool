@@ -73,3 +73,5 @@ export const chatTestBtnState = writable<boolean>(
 export const isVaildcurrentPage = writable("");
 
 export const currentTabId = writable<number>(null);
+
+export const isLoading = writable<boolean>(true);

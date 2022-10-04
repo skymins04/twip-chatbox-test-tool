@@ -2,13 +2,14 @@
 	import Header from "@components/Header.svelte";
   import Main from "@components/Main.svelte";
   import {useEffect} from "./lib/hooks";
-  import { currentTabId, isVaildcurrentPage, selectedChatTestType } from "@lib/store";
+  import { currentTabId, isLoading, isVaildcurrentPage, selectedChatTestType } from "@lib/store";
 
 	const init = () => {
-		isVaildcurrentPage.set("");
 		chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
 			const currentURL = tabs[0].url;
 			currentTabId.set(tabs[0].id);
+			isLoading.set(false);
+			isVaildcurrentPage.set("");
 			switch($selectedChatTestType.id) {
 			case 1:
 				if(!currentURL.match(/^https:\/\/(www\.)?twip\.kr\/widgets\/chatbox\/[0-9|a-z|A-Z]+/)) {

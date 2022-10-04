@@ -2,7 +2,7 @@
   import { Dialog, DialogDescription, DialogOverlay, DialogTitle, Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@rgossiaux/svelte-headlessui";
   import { CHAT_TEST_ALERT_TEXT, CHAT_TEST_TYPES, LOCALSTORAGE_KEYS } from "@src/lib/constant";
   import InputNumber from "../InputNumber.svelte";
-  import { chatTestBtnState, defaultChatTestDelay, isRandomChatTestDelayOffset, isVaildcurrentPage, randomChatTestDelayOffset, selectedChatTestType, testUserTypeFilter } from "@lib/store";
+  import { chatTestBtnState, defaultChatTestDelay, isLoading, isRandomChatTestDelayOffset, isVaildcurrentPage, randomChatTestDelayOffset, selectedChatTestType, testUserTypeFilter } from "@lib/store";
   import {useEffect} from "@src/lib/hooks";
   import { sendMsgToChromeRuntime } from "@src/lib/functions";
   import type { UserTypeFilter } from "@src/global";
@@ -25,17 +25,16 @@
   });
 
   useEffect(() => {
-    sendMsgToChromeRuntime("chat-control");
-  }, () => [$chatTestBtnState, $defaultChatTestDelay, $isRandomChatTestDelayOffset, $randomChatTestDelayOffset]);
+    if(!$isLoading) {
+      sendMsgToChromeRuntime("chat-control");
+    } 
+  }, () => [$chatTestBtnState, $isLoading]);
 
   useEffect(() => {
     if($chatTestBtnState) {
-      chatTestBtnState.set(false);
       sendMsgToChromeRuntime("chat-control");
-      chatTestBtnState.set(true);
-      sendMsgToChromeRuntime("chat-control"); 
     }
-  }, () => [$testUserTypeFilter]);
+  }, () => [$testUserTypeFilter, $defaultChatTestDelay, $isRandomChatTestDelayOffset, $randomChatTestDelayOffset]);
 
   useEffect(() => {
     if(isOpenSettingTestUserFilter) {
