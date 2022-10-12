@@ -1,7 +1,11 @@
 import { writable } from "svelte/store";
-import { CHAT_TEST_TYPES, LOCALSTORAGE_KEYS } from "./constant";
-import type { ChatTestType } from "./global";
+import { CHAT_TEST_TYPES, LOCALSTORAGE_KEYS } from "@lib/constant";
+import type { ChatTestType, TestMsg, UserTypeFilter } from "@src/global";
+import { defaultTestMsgProfiles } from "@lib/chatTest";
 
+/**
+ * LocalStorage Init
+ */
 (() => {
   if (!localStorage.getItem(LOCALSTORAGE_KEYS.chatTestType))
     localStorage.setItem(
@@ -19,7 +23,32 @@ import type { ChatTestType } from "./global";
     );
   if (!localStorage.getItem(LOCALSTORAGE_KEYS.chatTestBtnState))
     localStorage.setItem(LOCALSTORAGE_KEYS.chatTestBtnState, "false");
+  if (!localStorage.getItem(LOCALSTORAGE_KEYS.userTypeFilter))
+    localStorage.setItem(
+      LOCALSTORAGE_KEYS.userTypeFilter,
+      JSON.stringify({
+        broadcaster: true,
+        moderator: true,
+        partner: true,
+        subscriber: true,
+        turbo: true,
+        normal: true,
+        premium: true,
+        bits: true,
+        admin: true,
+        staff: true,
+      } as UserTypeFilter)
+    );
+  if (!localStorage.getItem(LOCALSTORAGE_KEYS.testMsg))
+    localStorage.setItem(
+      LOCALSTORAGE_KEYS.testMsg,
+      JSON.stringify(defaultTestMsgProfiles)
+    );
 })();
+
+/**
+ * Svelte Store Init
+ */
 
 export const selectedChatTestType = writable<ChatTestType>(
   JSON.parse(localStorage.getItem(LOCALSTORAGE_KEYS.chatTestType))
@@ -39,6 +68,10 @@ export const isRandomChatTestDelayOffset = writable<boolean>(
   )
 );
 
+export const testUserTypeFilter = writable<UserTypeFilter>(
+  JSON.parse(localStorage.getItem(LOCALSTORAGE_KEYS.userTypeFilter))
+);
+
 export const chatTestBtnState = writable<boolean>(
   JSON.parse(localStorage.getItem(LOCALSTORAGE_KEYS.chatTestBtnState))
 );
@@ -46,3 +79,9 @@ export const chatTestBtnState = writable<boolean>(
 export const isVaildcurrentPage = writable("");
 
 export const currentTabId = writable<number>(null);
+
+export const isLoading = writable<boolean>(true);
+
+export const testMsgProfiles = writable<Array<TestMsg>>(
+  JSON.parse(localStorage.getItem(LOCALSTORAGE_KEYS.testMsg))
+);

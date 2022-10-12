@@ -1,6 +1,6 @@
 import { afterUpdate, onDestroy } from "svelte";
 
-export default (cb, deps) => {
+export function useEffect(cb, deps) {
   let cleanup;
 
   function apply() {
@@ -25,4 +25,4 @@ export default (cb, deps) => {
   onDestroy(() => {
     if (cleanup) cleanup();
   });
-};
+}

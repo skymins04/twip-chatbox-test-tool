@@ -66,6 +66,10 @@ export default [
           },
         ],
       }),
+      typescript({
+        sourceMap: !production,
+        inlineSources: !production,
+      }),
       svelte({
         preprocess: sveltePreprocess({ sourceMap: !production }),
         compilerOptions: {
@@ -87,10 +91,6 @@ export default [
         dedupe: ["svelte"],
       }),
       commonjs(),
-      typescript({
-        sourceMap: !production,
-        inlineSources: !production,
-      }),
 
       // In dev mode, call `npm run start` once
       // the bundle has been generated
@@ -113,5 +113,31 @@ export default [
     output: {
       file: "public/background.js",
     },
+    plugins: [
+      alias({
+        entries: [
+          {
+            find: "@src",
+            replacement: path.resolve(path.resolve(__dirname), "src"),
+          },
+          {
+            find: "@components",
+            replacement: path.resolve(
+              path.resolve(__dirname),
+              "src",
+              "components"
+            ),
+          },
+          {
+            find: "@lib",
+            replacement: path.resolve(path.resolve(__dirname), "src", "lib"),
+          },
+        ],
+      }),
+      typescript({
+        sourceMap: !production,
+        inlineSources: !production,
+      }),
+    ],
   },
 ];

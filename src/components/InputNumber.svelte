@@ -12,9 +12,9 @@
 </script>
 
 <div class={`input-number-wrap ${disabled ? 'disabled': ''}`}>
-  <div class="btn" on:click={() => {if(!disabled) store.set($store > min ? $store - step : min)}}>-</div>
+  <div class="input-btn" on:click={() => {if(!disabled) store.set($store > min ? $store - step : min)}}>-</div>
   <input type="text" bind:value={$store} on:keydown={inputOnChage} on:keyup={inputOnChage} disabled={disabled}/>
-  <div class="btn" on:click={() => {if(!disabled) store.set($store + step)}}>+</div>
+  <div class="input-btn" on:click={() => {if(!disabled) store.set($store + step)}}>+</div>
 </div>
 
 <style lang="scss">
@@ -31,7 +31,7 @@
     &.disabled {
       background-color: #eee;
 
-      .btn, input {
+      .input-btn, input {
         color: #666;
 
         &:hover {
@@ -40,12 +40,12 @@
         }
       }
     }
-    .btn, input {
+    .input-btn, input {
       color: rgb(var(--theme-color-1));
       font-size: 12px;
     }
 
-    .btn {
+    .input-btn {
       position: relative;
       display: flex;
       justify-content: center;

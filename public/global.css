@@ -32,3 +32,102 @@ body {
     opacity: 1;
   }
 }
+
+@keyframes dialog-intro {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.dialog {
+  position: fixed;
+  width: calc(100% - 40px);
+  top: 50%;
+  left: 50%;
+  transform-origin: center center;
+  transform: translate(-50%, -50%);
+  padding: 5px 20px 20px;
+  border-radius: 10px;
+  background-color: white;
+  animation: dialog-intro 0.2s ease-in-out;
+  box-shadow: 0 3px 10px -5px #666;
+  z-index: 20;
+}
+
+.dialog .btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 5px;
+  white-space: nowrap;
+}
+
+.dialog .dialog-options {
+  position: relative;
+  width: 100%;
+  margin-bottom: 10px;
+}
+.dialog .dialog-options-item {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 5px;
+}
+.dialog .dialog-options-item .title {
+  position: relative;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  font-size: 12px;
+}
+.dialog .dialog-options-item .title {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+}
+.dialog .dialog-options-item .title .icon {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  display: inline-block;
+}
+
+input[type="checkbox"] {
+  display: none;
+}
+input[type="checkbox"] + label {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 23px;
+  height: 23px;
+  border: 1px solid #eee;
+  border-radius: 7px;
+  box-shadow: 0 2px 5px -2px #ccc;
+  color: rgb(var(--theme-color-1));
+  transition: 0.2s;
+}
+input[type="checkbox"]:checked + label {
+  background-color: #f3e7fe;
+  border: 1px solid #f3e7fe;
+}
+input[type="checkbox"] + label:hover {
+  cursor: pointer;
+}
+input[type="checkbox"]:checked + label::after {
+  content: "✓";
+  font-size: 12px;
+  animation: opacity-fade 0.2s ease-in-out;
+  position: relative;
+}
