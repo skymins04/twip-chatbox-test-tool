@@ -177,7 +177,7 @@
     <div class="btn" on:click={() => {testUserTypeFilter.set({...tmpTestUserTypeFilter}); localStorage.setItem(LOCALSTORAGE_KEYS.userTypeFilter,JSON.stringify($testUserTypeFilter)); isOpenSettingTestUserFilter = false;}}>저장</div>
     <div class="btn" on:click={() => {isOpenSettingTestUserFilter = false;}}>취소</div>
   </Dialog>
-  <Dialog class="dialog" open={isOpenSettingTestMsg} on:close={() => {isOpenSettingTestMsg = false;}}>
+  <Dialog class="dialog" open={isOpenSettingTestMsg} on:close={() => {isOpenSettingTestMsg = false; sendMsgToChromeRuntime("twip-chat-control");}}>
     <DialogOverlay/>
     <DialogTitle>테스트 메시지 설정</DialogTitle>
     <DialogDescription>채팅 테스트에 사용될 메시지를 설정할 수 있습니다.</DialogDescription>
@@ -206,7 +206,7 @@
       {/each}
     </div>
 
-    <div class="btn" on:click={() => {isOpenSettingTestMsg = false;}}>완료</div>
+    <div class="btn" on:click={() => {isOpenSettingTestMsg = false; sendMsgToChromeRuntime("twip-chat-control");}}>완료</div>
     <div class="btn" on:click={() => {testMsgProfiles.set(defaultTestMsgProfiles); localStorage.setItem(LOCALSTORAGE_KEYS.testMsg, JSON.stringify($testMsgProfiles));}}>초기화</div>
   </Dialog>
 </div>
