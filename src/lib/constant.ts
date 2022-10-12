@@ -11,10 +11,11 @@ export const CHAT_TEST_ALERT_TEXT = {
 };
 
 export const LOCALSTORAGE_KEYS = {
-  chatTestType: "1",
-  chatTestBtnState: "2",
-  chatTestDelay: "3",
-  chatTestRandomDelayOffset: "4",
-  isChatTestRandomDelayOffset: "5",
-  userTypeFilter: "6",
+  chatTestType: "chatTestType",
+  chatTestBtnState: "chatTestBtnState",
+  chatTestDelay: "chatTestDelay",
+  chatTestRandomDelayOffset: "chatTestRandomDelayOffset",
+  isChatTestRandomDelayOffset: "isChatTestRandomDelayOffset",
+  userTypeFilter: "userTypeFilter",
+  testMsg: "testMsg",
 };

@@ -24,6 +24,12 @@ export type TwitchUserType =
   | "admin"
   | "staff";
 
+export interface TestMsgEmoticon {
+  symbol: string;
+  code: number;
+  imgSrc: string;
+}
+
 export interface TwipUser {
   type: TwitchUserType;
   userData: {
@@ -47,7 +53,7 @@ export interface TwipUser {
   };
 }
 
-export interface TwipMsg {
+export interface TestMsg {
   msg: string;
   emotes: {
     [key: number]: Array<string>;
@@ -60,9 +66,9 @@ export interface ChatTestType {
   unavailable: boolean;
 }
 export type ChromeRuntimeSendMessageType =
-  | "tool-start"
-  | "chat-control"
-  | "clear-chat";
+  | "twip-chat-control"
+  | "twip-chat-clear";
+
 export interface UserTypeFilter {
   [key: TwitchUserType]: boolean;
 }
@@ -75,4 +81,5 @@ export interface ChromeRuntimeSendMessageRequest {
   randomOffset: number;
   tabId: number | null;
   testUserTypeFilter: UserTypeFilter;
+  testMsgs: Array<TestMsg>;
 }

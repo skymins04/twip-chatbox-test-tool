@@ -1,4 +1,9 @@
-import type { TwipMsg, TwipUser, UserTypeFilter } from "@src/global";
+import type {
+  TestMsgEmoticon,
+  TestMsg,
+  TwipUser,
+  UserTypeFilter,
+} from "@src/global";
 
 export const testTwitchUserProfiles: Array<TwipUser> = [
   {
@@ -247,7 +252,18 @@ export const getTestTwitchUserProfile = (filter?: UserTypeFilter) => {
   return userProfiles[Math.floor(Math.random() * userProfiles.length)];
 };
 
-export const testTwipMsgProfiles: Array<TwipMsg> = [
+export const testMsgEmoticons: Array<TestMsgEmoticon> = [
+  { symbol: "BloodTrail", code: 69, imgSrc: "/icon/bloodtrail.png" },
+  { symbol: "SmileRobot", code: 1, imgSrc: "/icon/smile_robot.png" },
+  { symbol: "PurpleHeart", code: 555555584, imgSrc: "/icon/purple_heart.png" },
+  { symbol: "HeyGuys", code: 30259, imgSrc: "/icon/hey_guys.png" },
+  { symbol: "BibleThump", code: 86, imgSrc: "/icon/bible_thump.png" },
+  { symbol: "PogChamp", code: 305954156, imgSrc: "/icon/pog_champ.png" },
+  { symbol: "PunchTrees", code: 47, imgSrc: "/icon/punch_trees.png" },
+  { symbol: "VoHiYo", code: 81274, imgSrc: "/icon/vohiyo.png" },
+];
+
+export const defaultTestMsgProfiles: Array<TestMsg> = [
   { msg: "Hello World", emotes: null },
   { msg: "Hi There~~~!", emotes: null },
   { msg: "트하트하트하트하 유하유하유하유하", emotes: null },
@@ -265,10 +281,10 @@ export const testTwipMsgProfiles: Array<TwipMsg> = [
   },
   { msg: "간장 공장 공장장은 강 공장장이다.", emotes: null },
   {
-    msg: "트수만 믿고 있으라구 a a b b",
+    msg: "트수만 믿고 있으라구 $BloodTrail $BloodTrail $BibleThump $BibleThump",
     emotes: {
-      69: ["12-12", "14-14"],
-      86: ["16-16", "18-18"],
+      69: ["12-22", "24-34"],
+      86: ["36-46", "48-58"],
     },
   },
   { msg: ":귀여운돼끼_1:", emotes: null },
@@ -280,5 +296,5 @@ export const testTwipMsgProfiles: Array<TwipMsg> = [
   },
 ];
 
-export const getTestTwipMsgProfile = () =>
-  testTwipMsgProfiles[Math.floor(Math.random() * testTwipMsgProfiles.length)];
+export const getTestMsgProfile = (msgs: Array<TestMsg>) =>
+  msgs[Math.floor(Math.random() * msgs.length)];

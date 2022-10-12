@@ -113,6 +113,31 @@ export default [
     output: {
       file: "public/background.js",
     },
-    plugins: [typescript()],
+    plugins: [
+      alias({
+        entries: [
+          {
+            find: "@src",
+            replacement: path.resolve(path.resolve(__dirname), "src"),
+          },
+          {
+            find: "@components",
+            replacement: path.resolve(
+              path.resolve(__dirname),
+              "src",
+              "components"
+            ),
+          },
+          {
+            find: "@lib",
+            replacement: path.resolve(path.resolve(__dirname), "src", "lib"),
+          },
+        ],
+      }),
+      typescript({
+        sourceMap: !production,
+        inlineSources: !production,
+      }),
+    ],
   },
 ];

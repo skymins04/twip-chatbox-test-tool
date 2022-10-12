@@ -1,6 +1,7 @@
 import { writable } from "svelte/store";
 import { CHAT_TEST_TYPES, LOCALSTORAGE_KEYS } from "@lib/constant";
-import type { ChatTestType, UserTypeFilter } from "@src/global";
+import type { ChatTestType, TestMsg, UserTypeFilter } from "@src/global";
+import { defaultTestMsgProfiles } from "@lib/chatTest";
 
 /**
  * LocalStorage Init
@@ -37,6 +38,11 @@ import type { ChatTestType, UserTypeFilter } from "@src/global";
         admin: true,
         staff: true,
       } as UserTypeFilter)
+    );
+  if (!localStorage.getItem(LOCALSTORAGE_KEYS.testMsg))
+    localStorage.setItem(
+      LOCALSTORAGE_KEYS.testMsg,
+      JSON.stringify(defaultTestMsgProfiles)
     );
 })();
 
@@ -75,3 +81,7 @@ export const isVaildcurrentPage = writable("");
 export const currentTabId = writable<number>(null);
 
 export const isLoading = writable<boolean>(true);
+
+export const testMsgProfiles = writable<Array<TestMsg>>(
+  JSON.parse(localStorage.getItem(LOCALSTORAGE_KEYS.testMsg))
+);
