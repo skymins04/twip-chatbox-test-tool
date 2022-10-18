@@ -289,15 +289,15 @@ const chromeConfirm = async (tabId, msg, callback) => {
             callback();
     });
 };
-const getAutosaveLocalStorageKey = (twipChatboxID) => `TWIP_CHATBOX_AUTOSAVE_${twipChatboxID}`;
+const getAutosaveLocalStorageKey = (twipChatboxId) => `TWIP_CHATBOX_AUTOSAVE_${twipChatboxId}`;
 const isVaildTwipChatboxSettingsPage = (url) => url.match(/^http(s?)\:\/\/twip\.kr\/dashboard\/chatbox.*$/) ? true : false;
-const createTwipChatBoxAutosaveInterval = async (tabId, twipChatboxID) => {
-    chrome.alarms.create(`twip-autosave_${tabId}_${twipChatboxID}`, {
+const createTwipChatBoxAutosaveInterval = async (tabId, twipChatboxId) => {
+    chrome.alarms.create(`twip-autosave_${tabId}_${twipChatboxId}`, {
         periodInMinutes: (1 / 60) * 5,
     });
-    twipChatboxAutosaveIntervals[twipChatboxID] = {
+    twipChatboxAutosaveIntervals[twipChatboxId] = {
         tabId: tabId.toString(),
-        interval: await chrome.alarms.get(`twip-autosave_${tabId}_${twipChatboxID}`),
+        interval: await chrome.alarms.get(`twip-autosave_${tabId}_${twipChatboxId}`),
     };
     chrome.action.setIcon({
         tabId,
@@ -309,10 +309,10 @@ const createTwipChatBoxAutosaveInterval = async (tabId, twipChatboxID) => {
     });
     await chromeAlert(tabId, "현재 탭에서 Twip Chatbox 커스텀테마 소스코드 자동저장이 실행되었습니다.");
 };
-const stopTwipChatboxAutosave = async (twipChatboxID) => {
-    if (twipChatboxAutosaveIntervals[twipChatboxID]) {
-        const tabId = parseInt(twipChatboxAutosaveIntervals[twipChatboxID].tabId);
-        await chrome.alarms.clear(twipChatboxAutosaveIntervals[twipChatboxID].interval.name);
+const stopTwipChatboxAutosave = async (twipChatboxId) => {
+    if (twipChatboxAutosaveIntervals[twipChatboxId]) {
+        const tabId = parseInt(twipChatboxAutosaveIntervals[twipChatboxId].tabId);
+        await chrome.alarms.clear(twipChatboxAutosaveIntervals[twipChatboxId].interval.name);
         chrome.action.setIcon({
             tabId,
             path: { "48": "icon/icon48.png" },
@@ -321,14 +321,14 @@ const stopTwipChatboxAutosave = async (twipChatboxID) => {
             tabId,
             title: "",
         });
-        delete twipChatboxAutosaveIntervals[twipChatboxID];
+        delete twipChatboxAutosaveIntervals[twipChatboxId];
     }
 };
 const runTwipChatboxAutosave = async (tabId, tab, runOption = true) => {
     if (runOption) {
         if (isVaildTwipChatboxSettingsPage(tab.url)) {
             tabStatus[tabId.toString()] = "alive";
-            const twipChatboxID = await chrome.scripting
+            const twipChatboxId = await chrome.scripting
                 .executeScript({
                 target: {
                     tabId,
@@ -336,28 +336,28 @@ const runTwipChatboxAutosave = async (tabId, tab, runOption = true) => {
                 func: () => {
                     const $ = window.$;
                     const twipChatboxDemoSrc = $("#demo").attr("src");
-                    const twipChatboxID = twipChatboxDemoSrc.match(/(?<=\/widgets\/chatbox\/).*(?=\?demo\=1)/);
-                    return twipChatboxID[0];
+                    const twipChatboxId = twipChatboxDemoSrc.match(/(?<=\/widgets\/chatbox\/).*(?=\?demo\=1)/);
+                    return twipChatboxId[0];
                 },
                 args: [],
                 world: "MAIN",
             })
                 .then((matchResult) => matchResult[0].result);
-            if (!twipChatboxAutosaveIntervals[twipChatboxID]) {
-                await createTwipChatBoxAutosaveInterval(tabId, twipChatboxID);
+            if (!twipChatboxAutosaveIntervals[twipChatboxId]) {
+                await createTwipChatBoxAutosaveInterval(tabId, twipChatboxId);
             }
-            else if (twipChatboxAutosaveIntervals[twipChatboxID].tabId !== tabId.toString()) {
+            else if (twipChatboxAutosaveIntervals[twipChatboxId].tabId !== tabId.toString()) {
                 await chromeConfirm(tabId, "이미 동일한 Twip Chatbox가 다른 탭에서 자동저장을 실행 중이므로 현재 탭에서 자동저장을 실행할 수 없습니다.\n다른 탭에서 실행중인 자동저장을 종료하고 현재 탭에서 자동저장을 실행할까요?", async () => {
-                    await stopTwipChatboxAutosave(twipChatboxID);
-                    await createTwipChatBoxAutosaveInterval(tabId, twipChatboxID);
+                    await stopTwipChatboxAutosave(twipChatboxId);
+                    await createTwipChatBoxAutosaveInterval(tabId, twipChatboxId);
                 });
             }
         }
     }
     else {
-        for (const twipChatboxID of Object.keys(twipChatboxAutosaveIntervals)) {
-            if (twipChatboxAutosaveIntervals[twipChatboxID].tabId === tabId.toString()) {
-                await stopTwipChatboxAutosave(twipChatboxID);
+        for (const twipChatboxId of Object.keys(twipChatboxAutosaveIntervals)) {
+            if (twipChatboxAutosaveIntervals[twipChatboxId].tabId === tabId.toString()) {
+                await stopTwipChatboxAutosave(twipChatboxId);
             }
         }
         await chromeAlert(tabId, "현재 탭의 Twip Chatbox 커스텀테마 소스코드 자동저장이 종료되었습니다.");
@@ -455,14 +455,14 @@ const twipChatClear = (request) => {
 chrome.alarms.onAlarm.addListener(async (alarm) => {
     const alarmType = alarm.name.split("_")[0];
     const tabId = parseInt(alarm.name.split("_")[1]);
-    const twipChatboxID = alarm.name.split("_")[2];
+    const twipChatboxId = alarm.name.split("_")[2];
     switch (alarmType) {
         case "twip-autosave":
-            console.log(new Date(), tabId, twipChatboxID);
+            console.log(new Date(), tabId, twipChatboxId);
             if (tabStatus[tabId.toString()] === "closed") {
                 await chrome.alarms.clear(alarm.name);
-                if (twipChatboxAutosaveIntervals[twipChatboxID])
-                    delete twipChatboxAutosaveIntervals[twipChatboxID];
+                if (twipChatboxAutosaveIntervals[twipChatboxId])
+                    delete twipChatboxAutosaveIntervals[twipChatboxId];
             }
             else {
                 const customThemeSource = await chrome.scripting
@@ -472,38 +472,40 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
                     },
                     func: () => {
                         const $ = window.$;
+                        const date = new Date();
                         return {
                             css: $(".CodeMirror")[0].CodeMirror.getValue(),
                             title: $("#chatbox_name").val(),
+                            timestamp: `${date.toLocaleDateString()}  ${date.toLocaleTimeString()}`,
                         };
                     },
                     world: "MAIN",
                 })
                     .then((result) => result[0].result);
                 if (customThemeSource.css) {
-                    const autosaveLocalStorageKey = getAutosaveLocalStorageKey(twipChatboxID);
+                    const autosaveLocalStorageKey = getAutosaveLocalStorageKey(twipChatboxId);
                     let tmp = {};
                     tmp[autosaveLocalStorageKey] = customThemeSource.css;
                     await chrome.storage.local.set(tmp);
                     tmp = {};
                     const autosavedOverlayData = {
-                        localStorageKey: getAutosaveLocalStorageKey(twipChatboxID),
-                        chatboxId: twipChatboxID,
-                        latestUpdate: new Date(),
+                        localStorageKey: getAutosaveLocalStorageKey(twipChatboxId),
+                        chatboxId: twipChatboxId,
+                        latestUpdate: customThemeSource.timestamp,
                         title: customThemeSource.title,
                     };
                     await chrome.storage.local
                         .get("TWIP_AUTOSAVED_OVERLAYS")
                         .then(async ({ TWIP_AUTOSAVED_OVERLAYS }) => {
                         if (!TWIP_AUTOSAVED_OVERLAYS) {
-                            tmp[twipChatboxID] = autosavedOverlayData;
+                            tmp[twipChatboxId] = autosavedOverlayData;
                             await chrome.storage.local.set({
                                 TWIP_AUTOSAVED_OVERLAYS: tmp,
                             });
                         }
                         else {
                             tmp = TWIP_AUTOSAVED_OVERLAYS;
-                            tmp[twipChatboxID] = autosavedOverlayData;
+                            tmp[twipChatboxId] = autosavedOverlayData;
                             await chrome.storage.local.set({
                                 TWIP_AUTOSAVED_OVERLAYS: tmp,
                             });
@@ -531,9 +533,9 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
                 await chrome.storage.local.set(tmp);
                 if (request.tab) {
                     let currentTabIsRunning = false;
-                    for (const twipChatboxID of Object.keys(twipChatboxAutosaveIntervals)) {
-                        if (twipChatboxAutosaveIntervals[twipChatboxID] &&
-                            twipChatboxAutosaveIntervals[twipChatboxID].tabId ===
+                    for (const twipChatboxId of Object.keys(twipChatboxAutosaveIntervals)) {
+                        if (twipChatboxAutosaveIntervals[twipChatboxId] &&
+                            twipChatboxAutosaveIntervals[twipChatboxId].tabId ===
                                 request.tab.id.toString())
                             currentTabIsRunning = true;
                     }
@@ -549,14 +551,22 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
                 }
                 break;
             case "twip-chatbox-get-autosave":
-                for (const twipChatboxID of Object.keys(twipChatboxAutosaveIntervals)) {
-                    if (twipChatboxAutosaveIntervals[twipChatboxID] &&
-                        twipChatboxAutosaveIntervals[twipChatboxID].tabId ===
+                let tmpTwipChatboxId = null;
+                for (const twipChatboxId of Object.keys(twipChatboxAutosaveIntervals)) {
+                    if (twipChatboxAutosaveIntervals[twipChatboxId] &&
+                        twipChatboxAutosaveIntervals[twipChatboxId].tabId ===
                             request.tabId.toString()) {
-                        return sendResponse({ autosaveStatus: true });
+                        return sendResponse({ autosaveStatus: true, twipChatboxId });
+                    }
+                    else if (twipChatboxAutosaveIntervals[twipChatboxId].tabId ===
+                        request.tabId.toString()) {
+                        tmpTwipChatboxId = twipChatboxId;
                     }
                 }
-                return sendResponse({ autosaveStatus: false });
+                return sendResponse({
+                    autosaveStatus: false,
+                    twipChatboxId: tmpTwipChatboxId,
+                });
             case "twip-chatbox-set-autosave":
                 await runTwipChatboxAutosave(request.tab.id, request.tab, request.autosaveStatus);
                 break;
@@ -564,11 +574,11 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     }
 });
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    for (const twipChatboxID of Object.keys(twipChatboxAutosaveIntervals)) {
-        if (twipChatboxAutosaveIntervals[twipChatboxID] &&
-            twipChatboxAutosaveIntervals[twipChatboxID].tabId === tabId.toString()) {
-            await chrome.alarms.clear(twipChatboxAutosaveIntervals[twipChatboxID].interval.name);
-            delete twipChatboxAutosaveIntervals[twipChatboxID];
+    for (const twipChatboxId of Object.keys(twipChatboxAutosaveIntervals)) {
+        if (twipChatboxAutosaveIntervals[twipChatboxId] &&
+            twipChatboxAutosaveIntervals[twipChatboxId].tabId === tabId.toString()) {
+            await chrome.alarms.clear(twipChatboxAutosaveIntervals[twipChatboxId].interval.name);
+            delete twipChatboxAutosaveIntervals[twipChatboxId];
         }
     }
     if (tabStatus[tabId.toString()])
@@ -588,11 +598,11 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
     if (tabStatus[tabId.toString()] === "alive") {
         tabStatus[tabId.toString()] = "closed";
-        for (const twipChatboxID of Object.keys(twipChatboxAutosaveIntervals)) {
-            if (twipChatboxAutosaveIntervals[twipChatboxID] &&
-                twipChatboxAutosaveIntervals[twipChatboxID].tabId === tabId.toString()) {
-                chrome.alarms.clear(twipChatboxAutosaveIntervals[twipChatboxID].interval.name);
-                delete twipChatboxAutosaveIntervals[twipChatboxID];
+        for (const twipChatboxId of Object.keys(twipChatboxAutosaveIntervals)) {
+            if (twipChatboxAutosaveIntervals[twipChatboxId] &&
+                twipChatboxAutosaveIntervals[twipChatboxId].tabId === tabId.toString()) {
+                chrome.alarms.clear(twipChatboxAutosaveIntervals[twipChatboxId].interval.name);
+                delete twipChatboxAutosaveIntervals[twipChatboxId];
             }
         }
     }

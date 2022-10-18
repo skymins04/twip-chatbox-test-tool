@@ -89,13 +89,13 @@ export interface ChromeRuntimeSendMessageRequest {
   autosaveStatus?: boolean;
 }
 
-export interface TwipAutosavedOverlay {
+export interface TwipOverlay {
   localStorageKey: string;
   chatboxId: string;
-  latestUpdate: Date;
+  latestUpdate: string;
   title: string;
 }
 
-export interface TwipAutosavedOverlays {
-  [key: string]: TwipAutosavedOverlay;
+export interface TwipOverlays {
+  [key: string]: TwipOverlay;
 }

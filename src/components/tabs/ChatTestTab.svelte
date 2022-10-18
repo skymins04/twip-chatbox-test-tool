@@ -270,7 +270,7 @@
       justify-content: center;
       align-items: center;
       flex-direction: column;
-      gap: 10px;
+      gap: 5px;
 
       .chat-test-options-item {
         position: relative;
