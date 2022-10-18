@@ -67,19 +67,37 @@ export interface ChatTestType {
 }
 export type ChromeRuntimeSendMessageType =
   | "twip-chat-control"
-  | "twip-chat-clear";
+  | "twip-chat-clear"
+  | "twip-chatbox-autosave-enable"
+  | "twip-chatbox-get-autosave"
+  | "twip-chatbox-set-autosave"
+  | "twip-chatbox-apply";
 
 export interface UserTypeFilter {
   [key: TwitchUserType]: boolean;
 }
 export interface ChromeRuntimeSendMessageRequest {
   type: ChromeRuntimeSendMessageType;
-  tabActivate: boolean;
-  runningState: boolean;
-  intervalTime: number;
-  randomFlag: boolean;
-  randomOffset: number;
-  tabId: number | null;
-  testUserTypeFilter: UserTypeFilter;
-  testMsgs: Array<TestMsg>;
+  tabActivate?: boolean;
+  runningState?: boolean;
+  intervalTime?: number;
+  randomFlag?: boolean;
+  randomOffset?: number;
+  tabId?: number | null;
+  tab?: chrome.tabs.Tab;
+  testUserTypeFilter?: UserTypeFilter;
+  testMsgs?: Array<TestMsg>;
+  autosaveStatus?: boolean;
+  overlay?: TwipOverlay;
+}
+
+export interface TwipOverlay {
+  localStorageKey: string;
+  chatboxId: string;
+  latestUpdate: string;
+  title: string;
+}
+
+export interface TwipOverlays {
+  [key: string]: TwipOverlay;
 }

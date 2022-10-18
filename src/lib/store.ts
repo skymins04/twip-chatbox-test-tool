@@ -1,6 +1,11 @@
 import { writable } from "svelte/store";
 import { CHAT_TEST_TYPES, LOCALSTORAGE_KEYS } from "@lib/constant";
-import type { ChatTestType, TestMsg, UserTypeFilter } from "@src/global";
+import type {
+  ChatTestType,
+  ChromeRuntimeSendMessageRequest,
+  TestMsg,
+  UserTypeFilter,
+} from "@src/global";
 import { defaultTestMsgProfiles } from "@lib/chatTest";
 
 /**
@@ -44,11 +49,25 @@ import { defaultTestMsgProfiles } from "@lib/chatTest";
       LOCALSTORAGE_KEYS.testMsg,
       JSON.stringify(defaultTestMsgProfiles)
     );
+  chrome.storage.local
+    .get(LOCALSTORAGE_KEYS.twipChatboxAutosaveStatus)
+    .then((result) => result[LOCALSTORAGE_KEYS.twipChatboxAutosaveStatus])
+    .then(async (result) => {
+      if (result) {
+        twipChatboxAutosaveStatus.set(JSON.parse(result));
+      } else {
+        await chrome.runtime.sendMessage({
+          type: "twip-chatbox-autosave-enable",
+          autosaveStatus: false,
+        } as ChromeRuntimeSendMessageRequest);
+        twipChatboxAutosaveStatus.set(false);
+      }
+    });
 })();
 
 /**
  * Svelte Store Init
- */
+//  */
 
 export const selectedChatTestType = writable<ChatTestType>(
   JSON.parse(localStorage.getItem(LOCALSTORAGE_KEYS.chatTestType))
@@ -85,3 +104,5 @@ export const isLoading = writable<boolean>(true);
 export const testMsgProfiles = writable<Array<TestMsg>>(
   JSON.parse(localStorage.getItem(LOCALSTORAGE_KEYS.testMsg))
 );
+
+export const twipChatboxAutosaveStatus = writable<boolean>(false);
