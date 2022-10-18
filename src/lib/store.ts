@@ -50,14 +50,14 @@ import { defaultTestMsgProfiles } from "@lib/chatTest";
       JSON.stringify(defaultTestMsgProfiles)
     );
   chrome.storage.local
-    .get("TWIP_CHATBOX_AUTOSAVE_STATUS")
-    .then((result) => result["TWIP_CHATBOX_AUTOSAVE_STATUS"])
+    .get(LOCALSTORAGE_KEYS.twipChatboxAutosaveStatus)
+    .then((result) => result[LOCALSTORAGE_KEYS.twipChatboxAutosaveStatus])
     .then(async (result) => {
       if (result) {
         twipChatboxAutosaveStatus.set(JSON.parse(result));
       } else {
         await chrome.runtime.sendMessage({
-          type: "twip-chatbox-autosave",
+          type: "twip-chatbox-autosave-enable",
           autosaveStatus: false,
         } as ChromeRuntimeSendMessageRequest);
         twipChatboxAutosaveStatus.set(false);

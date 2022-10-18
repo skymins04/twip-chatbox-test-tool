@@ -15,7 +15,7 @@
     <TabList class="main-tab-list">
       <Tab class="main-tab-btn">채팅테스트</Tab>
       <Tab class="main-tab-btn">테마프리셋</Tab>
-      <Tab class="main-tab-btn">설정</Tab>
+      <Tab class="main-tab-btn">자동저장</Tab>
     </TabList>
     <TabPanels class="main-tab-panels">
       <TabPanel><ChatTestTab /></TabPanel>
@@ -72,7 +72,7 @@
       height: 100%;
       border-radius: 11px;
       background-color: white;
-      padding: var(--global-padding-20);
+      padding: 25px var(--global-padding-20) var(--global-padding-20);
     }
 
     :global(.chat-test-type-select) {
