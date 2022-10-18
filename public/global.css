@@ -12,7 +12,7 @@ body {
   width: 100%;
 }
 
-* {
+*:not(.overlay-preview-wrap *) {
   box-sizing: border-box;
 }
 

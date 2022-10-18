@@ -235,10 +235,6 @@
 </div>
 
 <style lang="scss">
-  .preview-html-tag, .preview-body-tag, .preview-id-log-tag {
-    box-sizing: content-box;
-  }
-
   .overlay-preview-wrap {
     position: relative;
     box-sizing: border-box;
