@@ -1,11 +1,11 @@
 <script lang="ts">
-  import type { ChromeRuntimeSendMessageRequest } from "@src/global";
+  import type { ChromeRuntimeSendMessageRequest, TwipAutosavedOverlays } from "@src/global";
   import { AUTOSAVE_ALERT_TEXT, LOCALSTORAGE_KEYS } from "@src/lib/constant";
   import { twipChatboxAutosaveStatus } from "@src/lib/store";
   let startFlag = false;
   let autosaveStatus = false;
   let isVaildTwipChatboxSettingsPage = false;
-  let autosavedOverlays: string[] = [];
+  let autosavedOverlays: TwipAutosavedOverlays = {};
 
   const toggleTwipChatboxAutosave = async () => {
     console.log('hello world');
@@ -44,7 +44,7 @@
       });
 
       await chrome.storage.local.get('TWIP_AUTOSAVED_OVERLAYS').then(({TWIP_AUTOSAVED_OVERLAYS}) => {
-          if(!TWIP_AUTOSAVED_OVERLAYS) autosavedOverlays = [];
+          if(!TWIP_AUTOSAVED_OVERLAYS) autosavedOverlays = {};
           else autosavedOverlays = TWIP_AUTOSAVED_OVERLAYS;
       });
     };
@@ -86,9 +86,9 @@
   </div>
 
   <div class="settings-autosaved-overlays">
-    {#each autosavedOverlays as overlay, i}
+    {#each Object.keys(autosavedOverlays) as key, i}
       <div class="settings-autosaved-overlay">
-        {i+1}. {overlay}
+        {i+1}. {autosavedOverlays[key].title}
       </div>
     {/each}
   </div>
