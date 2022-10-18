@@ -5,11 +5,14 @@
   let startFlag = false;
   let autosaveStatus = false;
   let isVaildTwipChatboxSettingsPage = false;
+  let autosavedOverlays: string[] = [];
 
   const toggleTwipChatboxAutosave = async () => {
+    console.log('hello world');
     await chrome.runtime.sendMessage({
       type: "twip-chatbox-set-autosave",
       tab: await chrome.tabs.query({active: true, currentWindow: true}).then(tabs => tabs[0]),
+      autosaveStatus: !autosaveStatus
     } as ChromeRuntimeSendMessageRequest);
   };
 
@@ -32,12 +35,25 @@
 
     isVaildTwipChatboxSettingsPage = currentTab.url.match(/^http(s?)\:\/\/twip\.kr\/dashboard\/chatbox.*$/) ? true : false;
 
-    await chrome.runtime.sendMessage({
-      type: "twip-chatbox-get-autosave",
-      tabId: currentTab.id,
-    } as ChromeRuntimeSendMessageRequest, (res) => {
-      autosaveStatus = res.autosaveStatus;
-    });
+    const getAutosaveDatas = async () => {
+      await chrome.runtime.sendMessage({
+        type: "twip-chatbox-get-autosave",
+        tabId: currentTab.id,
+      } as ChromeRuntimeSendMessageRequest, (res) => {
+        autosaveStatus = res.autosaveStatus;
+      });
+
+      await chrome.storage.local.get('TWIP_AUTOSAVED_OVERLAYS').then(({TWIP_AUTOSAVED_OVERLAYS}) => {
+          if(!TWIP_AUTOSAVED_OVERLAYS) autosavedOverlays = [];
+          else autosavedOverlays = TWIP_AUTOSAVED_OVERLAYS;
+      });
+    };
+
+    getAutosaveDatas();
+
+    setInterval(async () => {
+      getAutosaveDatas();
+    }, 100);
   })();
 
 </script>
@@ -67,6 +83,14 @@
         <div on:click={() => {if(isVaildTwipChatboxSettingsPage) toggleTwipChatboxAutosave()}} class={`btn ${isVaildTwipChatboxSettingsPage ? '' : 'disabled'}`}>{autosaveStatus ? '비활성화' : '활성화'}</div>
       </div>
     </div>
+  </div>
+
+  <div class="settings-autosaved-overlays">
+    {#each autosavedOverlays as overlay, i}
+      <div class="settings-autosaved-overlay">
+        {i+1}. {overlay}
+      </div>
+    {/each}
   </div>
 </div>
 
