@@ -165,7 +165,7 @@
               }}>
             <div class="settings-autosaved-overlay-title">{autosavedOverlays[key].title}{currentTabTwipChatboxId && currentTabTwipChatboxId === autosavedOverlays[key].chatboxId ? ' (현재탭)' : '' }</div>
             <div class="settings-autosaved-overlay-id">id: {autosavedOverlays[key].chatboxId}</div>
-            <div class="settings-autosaved-overlay-latest-update">{autosavedOverlays[key].latestUpdate}</div>
+            <div class="settings-autosaved-overlay-latest-update">최신 자동저장 일자: {autosavedOverlays[key].latestUpdate}</div>
           </div>
         {/each}
       {:else}
@@ -213,12 +213,14 @@
         <TabPanel>
           <div class="overlay-preview-wrap">
             <div class="preview-html-tag">
-              {@html '<style>'+selectedAutosavedOverlayCSSContent.replace(/\\n/g, '').replace(/\$font_sizepx/g, '8px').replace(/\$message_hide_delays/, '100000s').replace(/body/g, '.preview-body-tag').replace(/html/g, '.preview-html-tag').replace(/\#log/g, '.preview-id-log-tag')+'</style>'}
+              {@html '<style>'+selectedAutosavedOverlayCSSContent.replace(/\\n/g, '').replace(/\$font_sizepx/g, '8px').replace(/\$message_hide_delays/, '100000s').replace(/body/g, '.preview-body-tag').replace(/html/g, '.preview-html-tag').replace(/\#log/g, '.preview-id-log-tag').replace(/(?<=\}? *)\*(?= *\{)/g, '.overlay-preview-wrap *')+'</style>'}
               <div class="preview-body-tag">
                 <div class="preview-id-log-tag">
                   <div><span class="meta"><span class="name">test트수1</span><span class="colon">:</span></span><span class="message">test message</span></div>
-                  <div><span class="meta"><span class="name">test트수2</span><span class="colon">:</span></span><span class="message">test message</span></div>
-                  <div><span class="meta"><span class="name">test트수3</span><span class="colon">:</span></span><span class="message">test message</span></div>
+                  <div><span class="meta"><span class="name">test트수2</span><span class="colon">:</span></span><span class="message">It's a sample chat test~~! Blah blah Blah blah</span></div>
+                  <div class="broadcaster"><span class="meta"><span class="name">스트리머</span><span class="colon">:</span></span><span class="message">트하트하트하 유하유하유하</span></div>
+                  <div class="broadcaster"><span class="meta"><span class="name">스트리머</span><span class="colon">:</span></span><span class="message">Hello world~~! Hi there~~~</span></div>
+                  <div><span class="meta"><span class="name">test트수3</span><span class="colon">:</span></span><span class="message">트하트하트하 유하유하유하유하</span></div>
                 </div>
               </div>
             </div>
