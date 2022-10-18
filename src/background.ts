@@ -410,6 +410,31 @@ chrome.runtime.onMessage.addListener(
             request.autosaveStatus
           );
           break;
+        case "twip-chatbox-apply":
+          if (isVaildTwipChatboxSettingsPage(request.tab.url)) {
+            const customCSS: string = await chrome.storage.local
+              .get(request.overlay.localStorageKey)
+              .then((res) => res[request.overlay.localStorageKey]);
+            await chrome.scripting.executeScript({
+              target: {
+                tabId: request.tab.id,
+              },
+              func: (css, title) => {
+                const $ = (window as any).$;
+                $(".CodeMirror")[0].CodeMirror.setValue(css);
+                $('.styles[data-name="custom"]').click();
+                $("#chatbox_name").val(title);
+                $("#chatbox_name").trigger("change");
+              },
+              args: [customCSS, request.overlay.title],
+              world: "MAIN",
+            });
+            await chromeAlert(
+              request.tab.id,
+              `현재 탭에 선택한 자동저장 오버레이를 적용했습니다.\nTwip Chatbox 설정페이지의 "설정하기" 버튼을 클릭해야 저장됩니다.`
+            );
+          }
+          break;
       }
     }
   }

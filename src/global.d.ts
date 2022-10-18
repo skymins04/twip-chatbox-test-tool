@@ -70,7 +70,8 @@ export type ChromeRuntimeSendMessageType =
   | "twip-chat-clear"
   | "twip-chatbox-autosave-enable"
   | "twip-chatbox-get-autosave"
-  | "twip-chatbox-set-autosave";
+  | "twip-chatbox-set-autosave"
+  | "twip-chatbox-apply";
 
 export interface UserTypeFilter {
   [key: TwitchUserType]: boolean;
@@ -87,6 +88,7 @@ export interface ChromeRuntimeSendMessageRequest {
   testUserTypeFilter?: UserTypeFilter;
   testMsgs?: Array<TestMsg>;
   autosaveStatus?: boolean;
+  overlay?: TwipOverlay;
 }
 
 export interface TwipOverlay {

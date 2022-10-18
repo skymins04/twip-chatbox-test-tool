@@ -57,6 +57,15 @@
       }, 0);
     }
   };
+  const clickApplyOverlayToCurrentTab = async () => {
+    if(!autosaveStatus && isVaildTwipChatboxSettingsPage && isVaildSelectedAutosavedOverlay && selectedAutosavedOverlay) {
+      await chrome.runtime.sendMessage({
+          type: "twip-chatbox-apply",
+          tab: await chrome.tabs.query({active: true, currentWindow: true}).then(tabs => tabs[0]),
+          overlay: selectedAutosavedOverlay 
+        } as ChromeRuntimeSendMessageRequest);
+    }
+  };
 
   (async () => {
     const currentTab = await chrome.tabs.query({active: true, currentWindow: true}).then(tabs => tabs[0]);
@@ -174,7 +183,7 @@
     </div>
 
     <div class="settings-autosaved-overlays-actions">
-      <div class={`btn ${isVaildSelectedAutosavedOverlay && isVaildTwipChatboxSettingsPage ? '' : 'disabled'}`}>현재 탭에 적용</div>
+      <div class={`btn ${!autosaveStatus && isVaildSelectedAutosavedOverlay && isVaildTwipChatboxSettingsPage ? '' : 'disabled'}`} on:click={clickApplyOverlayToCurrentTab}>현재 탭에 적용</div>
       <div class={`btn ${isVaildSelectedAutosavedOverlay ? '' : 'disabled'}`} on:click={clickGoToOverlaySettingsPage}>바로가기</div>
       <div class={`btn ${isVaildSelectedAutosavedOverlay ? '' : 'disabled'}`} on:click={() => {if(isVaildSelectedAutosavedOverlay && selectedAutosavedOverlay && selectedAutosavedOverlayCSSContent) isOpenPreviewOverlay = !isOpenPreviewOverlay;}}>미리보기</div>
       <div class={`btn ${isVaildSelectedAutosavedOverlay ? '' : 'disabled'}`} on:click={clickDownloadOverlay}>다운로드</div>
@@ -204,6 +213,7 @@
               height: "200px",
               maxHeight: "200px",
               marginBottom: "10px",
+              border: "1px solid #eee"
             }
           }}
           readonly={true}
