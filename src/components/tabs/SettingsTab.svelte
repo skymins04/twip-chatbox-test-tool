@@ -213,14 +213,26 @@
         <TabPanel>
           <div class="overlay-preview-wrap">
             <div class="preview-html-tag">
-              {@html '<style>'+selectedAutosavedOverlayCSSContent.replace(/\\n/g, '').replace(/\$font_sizepx/g, '8px').replace(/\$message_hide_delays/, '100000s').replace(/body/g, '.preview-body-tag').replace(/html/g, '.preview-html-tag').replace(/\#log/g, '.preview-id-log-tag').replace(/(?<=\}? *)\*(?= *\{)/g, '.overlay-preview-wrap *')+'</style>'}
+              {@html `<style>${
+                selectedAutosavedOverlayCSSContent
+                  .replace(/\\n/g, '')
+                  .replace(/\$font_sizepx/g, '12px')
+                  .replace(/\$font_face/g, 'Nanum Gothic')
+                  .replace(/\$background_color/, 'rgba(0,0,0,0)')
+                  .replace(/\$text_color/, '#000000')
+                  .replace(/\$message_hide_delays/, '100000s')
+                  .replace(/body/g, '.preview-body-tag')
+                  .replace(/html/g, '.preview-html-tag')
+                  .replace(/\#log/g, '.preview-id-log-tag')
+                  .replace(/(?<=\}? *)\*(?= *\{)/g, '.overlay-preview-wrap *')
+                }</style>`}
               <div class="preview-body-tag">
                 <div class="preview-id-log-tag">
-                  <div><span class="meta"><span class="name">test트수1</span><span class="colon">:</span></span><span class="message">test message</span></div>
-                  <div><span class="meta"><span class="name">test트수2</span><span class="colon">:</span></span><span class="message">It's a sample chat test~~! Blah blah Blah blah</span></div>
-                  <div class="broadcaster"><span class="meta"><span class="name">스트리머</span><span class="colon">:</span></span><span class="message">트하트하트하 유하유하유하</span></div>
-                  <div class="broadcaster"><span class="meta"><span class="name">스트리머</span><span class="colon">:</span></span><span class="message">Hello world~~! Hi there~~~</span></div>
-                  <div><span class="meta"><span class="name">test트수3</span><span class="colon">:</span></span><span class="message">트하트하트하 유하유하유하유하</span></div>
+                  <div><span class="meta" style="color: #B22222"><span class="name">test트수1</span><span class="colon">:</span></span><span class="message">test message</span></div>
+                  <div><span class="meta" style="color: #FF7F50"><span class="name">test트수2</span><span class="colon">:</span></span><span class="message">It's a sample chat test~~! Blah blah Blah blah</span></div>
+                  <div class="broadcaster"><span class="meta" style="color: #00FF00"><span class="name">스트리머</span><span class="colon">:</span></span><span class="message">트하트하트하 유하유하유하</span></div>
+                  <div class="broadcaster"><span class="meta" style="color: #0000FF"><span class="name">스트리머</span><span class="colon">:</span></span><span class="message">Hello world~~! Hi there~~~</span></div>
+                  <div><span class="meta" style="color: #2E8B57"><span class="name">test트수3</span><span class="colon">:</span></span><span class="message">트하트하트하 유하유하유하유하</span></div>
                 </div>
               </div>
             </div>
