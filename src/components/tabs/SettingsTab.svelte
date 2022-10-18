@@ -1,16 +1,22 @@
 <script lang="ts">
+  import { Dialog, DialogOverlay, DialogTitle, Tab, TabGroup, TabList, TabPanel, TabPanels } from "@rgossiaux/svelte-headlessui";
   import type { ChromeRuntimeSendMessageRequest, TwipOverlay, TwipOverlays } from "@src/global";
   import { AUTOSAVE_ALERT_TEXT, LOCALSTORAGE_KEYS } from "@src/lib/constant";
   import { useEffect } from "@src/lib/hooks";
   import { twipChatboxAutosaveStatus } from "@src/lib/store";
+  import CodeMirror from "svelte-codemirror-editor";
+  import {css} from "@codemirror/lang-css";
+
   let startFlag = false;
   let autosaveStatus = false;
   let isVaildTwipChatboxSettingsPage = false;
   let autosavedOverlays: TwipOverlays = {};
   let selectedAutosavedOverlayIndex: number = null;
   let selectedAutosavedOverlay: TwipOverlay = null;
+  let selectedAutosavedOverlayCSSContent: string = null;
   let isVaildSelectedAutosavedOverlay = false;
   let currentTabTwipChatboxId: string = null;
+  let isOpenPreviewOverlay = false;
 
   const toggleTwipChatboxAutosave = async () => {
     await chrome.runtime.sendMessage({
@@ -103,7 +109,19 @@
     isVaildSelectedAutosavedOverlay = 
       selectedAutosavedOverlay 
       && selectedAutosavedOverlayIndex !== null;
+      if(selectedAutosavedOverlay) {
+        chrome.storage.local.get(selectedAutosavedOverlay.localStorageKey).then(res => {selectedAutosavedOverlayCSSContent = res[selectedAutosavedOverlay.localStorageKey];});
+      }
   }, () => [selectedAutosavedOverlayIndex, selectedAutosavedOverlay]);
+
+  useEffect(() => {
+    if(selectedAutosavedOverlay) {
+      for(const key of Object.keys(autosavedOverlays)) {
+        if(selectedAutosavedOverlay.chatboxId === autosavedOverlays[key].chatboxId)
+          selectedAutosavedOverlay = autosavedOverlays[key];
+      }
+    }
+  }, () => [autosavedOverlays])
 
 </script>
 
@@ -158,14 +176,78 @@
     <div class="settings-autosaved-overlays-actions">
       <div class={`btn ${isVaildSelectedAutosavedOverlay && isVaildTwipChatboxSettingsPage ? '' : 'disabled'}`}>현재 탭에 적용</div>
       <div class={`btn ${isVaildSelectedAutosavedOverlay ? '' : 'disabled'}`} on:click={clickGoToOverlaySettingsPage}>바로가기</div>
-      <div class={`btn ${isVaildSelectedAutosavedOverlay ? '' : 'disabled'}`}>미리보기</div>
+      <div class={`btn ${isVaildSelectedAutosavedOverlay ? '' : 'disabled'}`} on:click={() => {if(isVaildSelectedAutosavedOverlay && selectedAutosavedOverlay && selectedAutosavedOverlayCSSContent) isOpenPreviewOverlay = !isOpenPreviewOverlay;}}>미리보기</div>
       <div class={`btn ${isVaildSelectedAutosavedOverlay ? '' : 'disabled'}`} on:click={clickDownloadOverlay}>다운로드</div>
     </div>
+
+    
   </div>
   
+  {#if isOpenPreviewOverlay}
+    <div style={"display:block; width: 100%; height: 100%; position: fixed !important; top: 0; left: 0; background-color: rgba(0, 0, 0, .3); animation: opacity-fade .2s ease-in-out;"}></div>
+  {/if}
+  <Dialog class="dialog" open={isOpenPreviewOverlay} on:close={() => {isOpenPreviewOverlay = false;}}>
+    <DialogOverlay/>
+    <DialogTitle>오버레이 미리보기</DialogTitle>
+
+    <TabGroup>
+      <TabList class="main-tab-list">
+        <Tab class="main-tab-btn">소스코드</Tab>
+        <Tab class="main-tab-btn">데모</Tab>
+      </TabList>
+      <TabPanels>
+        <TabPanel>
+          <CodeMirror styles={{
+            "&": {
+              width: "100%",
+              maxWidth: "100%",
+              height: "200px",
+              maxHeight: "200px",
+              marginBottom: "10px",
+            }
+          }}
+          readonly={true}
+          value={selectedAutosavedOverlayCSSContent ? selectedAutosavedOverlayCSSContent : ''}
+          lang={css()}/>
+        </TabPanel>
+        <TabPanel>
+          <div class="overlay-preview-wrap">
+            <div class="preview-html-tag">
+              {@html '<style>'+selectedAutosavedOverlayCSSContent.replace(/\\n/g, '').replace(/\$font_sizepx/g, '8px').replace(/\$message_hide_delays/, '100000s').replace(/body/g, '.preview-body-tag').replace(/html/g, '.preview-html-tag').replace(/\#log/g, '.preview-id-log-tag')+'</style>'}
+              <div class="preview-body-tag">
+                <div class="preview-id-log-tag">
+                  <div><span class="meta"><span class="name">test트수1</span><span class="colon">:</span></span><span class="message">test message</span></div>
+                  <div><span class="meta"><span class="name">test트수2</span><span class="colon">:</span></span><span class="message">test message</span></div>
+                  <div><span class="meta"><span class="name">test트수3</span><span class="colon">:</span></span><span class="message">test message</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </TabPanel>
+      </TabPanels>
+    </TabGroup>
+
+    
+    
+    <div class="btn" on:click={() => {isOpenPreviewOverlay = false;}}>닫기</div>
+  </Dialog>
+
 </div>
 
 <style lang="scss">
+  .preview-html-tag, .preview-body-tag, .preview-id-log-tag {
+    box-sizing: content-box;
+  }
+
+  .overlay-preview-wrap {
+    position: relative;
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+  }
+
   .settings-tab-wrap {
     position: relative;
     width: 100%;
