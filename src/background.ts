@@ -330,6 +330,7 @@ chrome.runtime.onMessage.addListener(
   async (request: ChromeRuntimeSendMessageRequest, sender, sendResponse) => {
     switch (request.type) {
       case "twip-chat-control":
+        console.log("hello world");
         if (request.tabId) twipChatControl(request);
         break;
       case "twip-chat-clear":

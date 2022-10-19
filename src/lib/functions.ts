@@ -71,3 +71,18 @@ export function getTestMsgByRawString(rawStr: string): TestMsg {
 
   return testMsg;
 }
+
+export function generateRandomString(num) {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  let result = "";
+  const charactersLength = characters.length;
+  for (let i = 0; i < num; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+
+  return result;
+}
+
+export function getCurrentTabLocalstorageKey(str: string) {
+  return str + "_" + get(currentTabId);
+}

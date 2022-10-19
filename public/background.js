@@ -520,6 +520,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     switch (request.type) {
         case "twip-chat-control":
+            console.log("hello world");
             if (request.tabId)
                 twipChatControl(request);
             break;

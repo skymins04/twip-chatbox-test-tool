@@ -73,9 +73,8 @@ export type ChromeRuntimeSendMessageType =
   | "twip-chatbox-set-autosave"
   | "twip-chatbox-apply";
 
-export interface UserTypeFilter {
-  [key: TwitchUserType]: boolean;
-}
+export type UserTypeFilter = Record<TwitchUserType, boolean>;
+
 export interface ChromeRuntimeSendMessageRequest {
   type: ChromeRuntimeSendMessageType;
   tabActivate?: boolean;

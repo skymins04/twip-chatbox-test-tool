@@ -4,7 +4,7 @@
   import InputNumber from "../InputNumber.svelte";
   import { chatTestBtnState, defaultChatTestDelay, isLoading, isRandomChatTestDelayOffset, isVaildcurrentPage, randomChatTestDelayOffset, selectedChatTestType, testMsgProfiles, testUserTypeFilter } from "@lib/store";
   import {useEffect} from "@src/lib/hooks";
-  import { getTestMsgPreviewHTMLString, sendMsgToChromeRuntime, getTestMsgByRawString } from "@src/lib/functions";
+  import { getTestMsgPreviewHTMLString, sendMsgToChromeRuntime, getTestMsgByRawString, getCurrentTabLocalstorageKey } from "@src/lib/functions";
   import type { UserTypeFilter } from "@src/global";
   import {defaultTestMsgProfiles, testMsgEmoticons} from '@lib/chatTest';
 
@@ -16,26 +16,32 @@
 
 
   defaultChatTestDelay.subscribe(value => {
-    localStorage.setItem(LOCALSTORAGE_KEYS.chatTestDelay, value.toString());
+    localStorage.setItem(getCurrentTabLocalstorageKey(LOCALSTORAGE_KEYS.chatTestDelay), value.toString());
   });
   randomChatTestDelayOffset.subscribe(value => {
-    localStorage.setItem(LOCALSTORAGE_KEYS.chatTestRandomDelayOffset, value.toString());
+    localStorage.setItem(getCurrentTabLocalstorageKey(LOCALSTORAGE_KEYS.chatTestRandomDelayOffset), value.toString());
   });
   selectedChatTestType.subscribe(value => {
-    localStorage.setItem(LOCALSTORAGE_KEYS.chatTestType, JSON.stringify(value));
+    localStorage.setItem(getCurrentTabLocalstorageKey(LOCALSTORAGE_KEYS.chatTestType), JSON.stringify(value));
   });
   isRandomChatTestDelayOffset.subscribe(value => {
-    localStorage.setItem(LOCALSTORAGE_KEYS.isChatTestRandomDelayOffset, JSON.stringify(value));
+    localStorage.setItem(getCurrentTabLocalstorageKey(LOCALSTORAGE_KEYS.isChatTestRandomDelayOffset), JSON.stringify(value));
   });
+
+  useEffect(() => {
+    $isLoading = false;
+  }, () => []);
 
   useEffect(() => {
     if(!$isLoading) {
+      console.log('?')
       sendMsgToChromeRuntime("twip-chat-control");
-    } 
-  }, () => [$chatTestBtnState, $isLoading]);
+    }
+  }, () => [$chatTestBtnState]);
 
   useEffect(() => {
-    if($chatTestBtnState) {
+    if(!$isLoading && $chatTestBtnState) {
+      console.log('??');
       sendMsgToChromeRuntime("twip-chat-control");
     }
   }, () => [$testUserTypeFilter, $defaultChatTestDelay, $isRandomChatTestDelayOffset, $randomChatTestDelayOffset]);
@@ -75,7 +81,7 @@
     on:click={() => {
       if($isVaildcurrentPage === "") {
         chatTestBtnState.set(!$chatTestBtnState);
-        localStorage.setItem(LOCALSTORAGE_KEYS.chatTestBtnState, JSON.stringify($chatTestBtnState));
+        localStorage.setItem(getCurrentTabLocalstorageKey(LOCALSTORAGE_KEYS.chatTestBtnState), JSON.stringify($chatTestBtnState));
       }
     }}>
   </div>
@@ -176,13 +182,13 @@
       {/if}
     </div>
 
-    <div class="btn" on:click={() => {testUserTypeFilter.set({...tmpTestUserTypeFilter}); localStorage.setItem(LOCALSTORAGE_KEYS.userTypeFilter,JSON.stringify($testUserTypeFilter)); isOpenSettingTestUserFilter = false;}}>저장</div>
+    <div class="btn" on:click={() => {testUserTypeFilter.set({...tmpTestUserTypeFilter}); localStorage.setItem(getCurrentTabLocalstorageKey(LOCALSTORAGE_KEYS.userTypeFilter),JSON.stringify($testUserTypeFilter)); isOpenSettingTestUserFilter = false;}}>저장</div>
     <div class="btn" on:click={() => {isOpenSettingTestUserFilter = false;}}>취소</div>
   </Dialog>
   <Dialog class="dialog" open={isOpenSettingTestMsg} on:close={() => {isOpenSettingTestMsg = false; sendMsgToChromeRuntime("twip-chat-control");}}>
     <DialogOverlay/>
     <DialogTitle>테스트 메시지 설정</DialogTitle>
-    <DialogDescription>채팅 테스트에 사용될 메시지를 설정할 수 있습니다.</DialogDescription>
+    <DialogDescription>채팅 테스트에 사용될 메시지를 설정할 수 있습니다.<br><span style="font-size: 6px; font-weight: bold;">(주의) 테스트 메시지 리스트를 수정하면 다른 탭의 테스트 툴에도 동일하게 적용됩니다.</span></DialogDescription>
 
     <div class="emoticon-add-btn-wrap">
       {#each testMsgEmoticons as emoticon}
