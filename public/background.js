@@ -387,7 +387,7 @@ class ChatTestInterval {
 const twipChatControl = (request) => {
     if (twipChatboxTextIntervals[request.tabId.toString()]) {
         twipChatboxTextIntervals[request.tabId.toString()].clear();
-        twipChatboxTextIntervals[request.tabId.toString()] = null;
+        delete twipChatboxTextIntervals[request.tabId.toString()];
     }
     chatControls[request.tabId.toString()] = {
         intervalTime: request.intervalTime,
@@ -436,7 +436,7 @@ const twipChatControl = (request) => {
     else {
         if (twipChatboxTextIntervals[request.tabId.toString()]) {
             twipChatboxTextIntervals[request.tabId.toString()].clear();
-            twipChatboxTextIntervals[request.tabId.toString()] = null;
+            delete twipChatboxTextIntervals[request.tabId.toString()];
         }
     }
 };
@@ -455,9 +455,9 @@ const twipChatClear = (request) => {
 chrome.alarms.onAlarm.addListener(async (alarm) => {
     const alarmType = alarm.name.split("_")[0];
     const tabId = parseInt(alarm.name.split("_")[1]);
-    const twipChatboxId = alarm.name.split("_")[2];
     switch (alarmType) {
         case "twip-autosave":
+            const twipChatboxId = alarm.name.split("_")[2];
             console.log(new Date(), tabId, twipChatboxId);
             if (tabStatus[tabId.toString()] === "closed") {
                 await chrome.alarms.clear(alarm.name);
@@ -616,13 +616,13 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (twipChatboxAutosaveStatus && changeInfo.status === "complete")
         await runTwipChatboxAutosave(tabId, tab);
 });
-chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
+chrome.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
     if (tabStatus[tabId.toString()] === "alive") {
         tabStatus[tabId.toString()] = "closed";
         for (const twipChatboxId of Object.keys(twipChatboxAutosaveIntervals)) {
             if (twipChatboxAutosaveIntervals[twipChatboxId] &&
                 twipChatboxAutosaveIntervals[twipChatboxId].tabId === tabId.toString()) {
-                chrome.alarms.clear(twipChatboxAutosaveIntervals[twipChatboxId].interval.name);
+                await chrome.alarms.clear(twipChatboxAutosaveIntervals[twipChatboxId].interval.name);
                 delete twipChatboxAutosaveIntervals[twipChatboxId];
             }
         }
