@@ -236,13 +236,6 @@ const testTwitchUserProfiles = [
         },
     },
 ];
-const getTestTwitchUserProfile = (filter) => {
-    const userProfiles = filter
-        ? testTwitchUserProfiles.filter((itm) => filter[itm.type])
-        : testTwitchUserProfiles;
-    return userProfiles[Math.floor(Math.random() * userProfiles.length)];
-};
-const getTestMsgProfile = (msgs) => msgs[Math.floor(Math.random() * msgs.length)];
 
 const LOCALSTORAGE_KEYS = {
     chatTestType: "chatTestType",
@@ -257,8 +250,6 @@ const LOCALSTORAGE_KEYS = {
 
 const tabStatus = {};
 const twipChatboxAutosaveIntervals = {};
-const chatControls = {};
-const twipChatboxTextIntervals = {};
 const chromeAlert = async (tabId, msg) => {
     await chrome.scripting.executeScript({
         target: {
@@ -363,85 +354,115 @@ const runTwipChatboxAutosave = async (tabId, tab, runOption = true) => {
         await chromeAlert(tabId, "현재 탭의 Twip Chatbox 커스텀테마 소스코드 자동저장이 종료되었습니다.");
     }
 };
-class ChatTestInterval {
-    constructor(callback, tabId) {
-        this.timer = null;
-        this.callback = callback;
-        this.tabId = tabId;
-        this.set();
-    }
-    set() {
-        this.timer = setTimeout(async () => {
-            await this.callback();
-            await this.set();
-        }, chatControls[this.tabId].offsetFlag
-            ? chatControls[this.tabId].intervalTime +
-                chatControls[this.tabId].offsetTime * Math.random()
-            : chatControls[this.tabId].intervalTime);
-    }
-    clear() {
-        if (this.timer)
-            clearTimeout(this.timer);
-    }
-}
-const twipChatControl = (request) => {
-    if (twipChatboxTextIntervals[request.tabId.toString()]) {
-        twipChatboxTextIntervals[request.tabId.toString()].clear();
-        delete twipChatboxTextIntervals[request.tabId.toString()];
-    }
-    chatControls[request.tabId.toString()] = {
-        intervalTime: request.intervalTime,
-        offsetTime: request.randomOffset,
-        offsetFlag: request.randomFlag,
-    };
-    if (request.runningState) {
-        const interval = new ChatTestInterval(async () => {
-            const testUser = getTestTwitchUserProfile(request.testUserTypeFilter);
-            const testMsg = getTestMsgProfile(request.testMsgs);
-            console.log("run twip-chat-control", request.runningState, request.tabId);
-            if (request.tabId) {
-                chrome.scripting.executeScript({
-                    target: {
-                        tabId: request.tabId,
-                    },
-                    func: (testUser, testMsg) => {
-                        const userData = testUser.userData;
-                        let rawStr = "", i = 0;
-                        if (testMsg.emotes !== null) {
-                            for (const emote in testMsg.emotes) {
-                                let str = emote + ":", j = 0;
-                                for (let item of testMsg.emotes[emote]) {
-                                    if (j !== 0)
-                                        str += ",";
-                                    str += item;
-                                    j += 1;
-                                }
-                                if (i !== 0)
-                                    rawStr += "/";
-                                rawStr += str;
-                                i += 1;
+const twipChatControl = async (request) => {
+    if (request.runningState && request.tabId) {
+        /**
+         * run twip chatting test
+         */
+        await chrome.scripting.executeScript({
+            target: {
+                tabId: request.tabId,
+            },
+            func: (request) => {
+                const _w = window;
+                const intervalKey = `TWIP_CHATTEST_${request.tabId}`;
+                if (_w[intervalKey]) {
+                    _w[intervalKey].clear();
+                    delete _w[intervalKey];
+                }
+                _w.chatControls[request.tabId.toString()] = {
+                    intervalTime: request.intervalTime,
+                    offsetTime: request.randomOffset,
+                    offsetFlag: request.randomFlag,
+                };
+                _w[intervalKey] = new _w.ChatTestInterval(() => {
+                    console.log("run interval twip-chat-control", request.tabId);
+                    const testUser = _w.getTestTwitchUserProfile(request.testUserTypeFilter);
+                    const testMsg = _w.getTestMsgProfile(request.testMsgs);
+                    const userData = testUser.userData;
+                    let rawStr = "";
+                    let i = 0;
+                    if (testMsg.emotes !== null) {
+                        for (const emote in testMsg.emotes) {
+                            let tmpStr = emote + ":";
+                            let j = 0;
+                            for (const item of testMsg.emotes[emote]) {
+                                if (j !== 0)
+                                    tmpStr += ",";
+                                tmpStr += item;
+                                j += 1;
                             }
-                            userData["emotes-raw"] = rawStr;
+                            if (i !== 0)
+                                rawStr += "/";
+                            rawStr += tmpStr;
+                            i += 1;
                         }
-                        userData["emotes"] = testMsg.emotes;
-                        window.ChatBox.processMessage(null, userData, testMsg.msg);
-                    },
-                    args: [testUser, testMsg],
-                    world: "MAIN",
-                });
-            }
-        }, request.tabId.toString());
-        twipChatboxTextIntervals[request.tabId.toString()] = interval;
+                        userData["emotes-raw"] = rawStr;
+                    }
+                    userData["emotes"] = testMsg.emotes;
+                    _w.ChatBox.processMessage(null, userData, testMsg.msg);
+                }, request.tabId.toString());
+            },
+            args: [request],
+            world: "MAIN",
+        });
+        // const interval = new ChatTestInterval(async () => {
+        //   const testUser = getTestTwitchUserProfile(request.testUserTypeFilter);
+        //   const testMsg = getTestMsgProfile(request.testMsgs);
+        //   console.log("run twip-chat-control", request.runningState, request.tabId);
+        //   if (request.tabId) {
+        //     chrome.scripting.executeScript({
+        //       target: {
+        //         tabId: request.tabId,
+        //       },
+        //       func: (testUser: TwipUser, testMsg: TestMsg) => {
+        //         const userData = testUser.userData;
+        //         let rawStr = "",
+        //           i = 0;
+        //         if (testMsg.emotes !== null) {
+        //           for (const emote in testMsg.emotes) {
+        //             let str = emote + ":",
+        //               j = 0;
+        //             for (let item of testMsg.emotes[emote]) {
+        //               if (j !== 0) str += ",";
+        //               str += item;
+        //               j += 1;
+        //             }
+        //             if (i !== 0) rawStr += "/";
+        //             rawStr += str;
+        //             i += 1;
+        //           }
+        //           userData["emotes-raw"] = rawStr;
+        //         }
+        //         userData["emotes"] = testMsg.emotes;
+        //         (window as any).ChatBox.processMessage(null, userData, testMsg.msg);
+        //       },
+        //       args: [testUser, testMsg],
+        //       world: "MAIN",
+        //     });
+        //   }
+        // }, request.tabId.toString());
+        // twipChatboxTextIntervals[request.tabId.toString()] = interval;
     }
-    else {
-        if (twipChatboxTextIntervals[request.tabId.toString()]) {
-            twipChatboxTextIntervals[request.tabId.toString()].clear();
-            delete twipChatboxTextIntervals[request.tabId.toString()];
-        }
+    else if (!request.runningState && request.tabId) {
+        await chrome.scripting.executeScript({
+            target: {
+                tabId: request.tabId,
+            },
+            func: (tabId) => {
+                const _w = window;
+                const intervalKey = `TWIP_CHATTEST_${tabId}`;
+                if (_w[intervalKey]) {
+                    _w[intervalKey].clear();
+                    delete _w[intervalKey];
+                }
+            },
+            args: [request.tabId],
+            world: "MAIN",
+        });
     }
 };
 const twipChatClear = (request) => {
-    console.log("run clear-chat");
     chrome.scripting.executeScript({
         target: {
             tabId: request.tabId,
@@ -520,9 +541,8 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     switch (request.type) {
         case "twip-chat-control":
-            console.log("hello world");
             if (request.tabId)
-                twipChatControl(request);
+                await twipChatControl(request);
             break;
         case "twip-chat-clear":
             twipChatClear(request);
@@ -596,6 +616,58 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     }
 });
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+    /**
+     * Twip Chatting test
+     */
+    if (tab.url.match(/^https:\/\/(www\.)?twip\.kr\/widgets\/chatbox\/[0-9|a-z|A-Z]+/) &&
+        changeInfo.status === "complete") {
+        /**
+         * Function and Class Installcation
+         */
+        await chrome.scripting.executeScript({
+            target: {
+                tabId,
+            },
+            func: (testTwitchUserProfiles) => {
+                const _w = window;
+                _w.getTestMsgProfile = (msgs) => msgs[Math.floor(Math.random() * msgs.length)];
+                _w.getTestTwitchUserProfile = (filter) => {
+                    const userProfiles = filter
+                        ? testTwitchUserProfiles.filter((itm) => filter[itm.type])
+                        : testTwitchUserProfiles;
+                    return userProfiles[Math.floor(Math.random() * userProfiles.length)];
+                };
+                _w.chatControls = {};
+                class ChatTestInterval {
+                    constructor(callback, tabId) {
+                        this.timer = null;
+                        this.callback = callback;
+                        this.tabId = tabId;
+                        this.set();
+                    }
+                    set() {
+                        this.timer = setTimeout(async () => {
+                            await this.callback();
+                            await this.set();
+                        }, _w.chatControls[this.tabId].offsetFlag
+                            ? _w.chatControls[this.tabId].intervalTime +
+                                _w.chatControls[this.tabId].offsetTime * Math.random()
+                            : _w.chatControls[this.tabId].intervalTime);
+                    }
+                    clear() {
+                        if (this.timer)
+                            clearTimeout(this.timer);
+                    }
+                }
+                _w.ChatTestInterval = ChatTestInterval;
+            },
+            args: [testTwitchUserProfiles],
+            world: "MAIN",
+        });
+    }
+    /**
+     * Autosave
+     */
     for (const twipChatboxId of Object.keys(twipChatboxAutosaveIntervals)) {
         if (twipChatboxAutosaveIntervals[twipChatboxId] &&
             twipChatboxAutosaveIntervals[twipChatboxId].tabId === tabId.toString()) {
