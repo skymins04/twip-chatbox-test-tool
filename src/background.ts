@@ -5,8 +5,8 @@ import type {
   TwipUser,
   UserTypeFilter,
 } from "@src/global";
-import { testTwitchUserProfiles } from "@lib/chatTest";
-import { LOCALSTORAGE_KEYS } from "./lib/constant";
+import { testTwitchUserProfiles } from "@src/lib/common/chatTest";
+import { LOCALSTORAGE_KEYS } from "@lib/common/constant";
 import {
   chromeAlert,
   chromeConfirm,
@@ -211,7 +211,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     changeInfo.status === "complete"
   ) {
     /**
-     * Function and Class Installcation
+     * Twip Chatbox 위젯 페이지 접속시 채팅 테스트에 필요한 함수 및 클래스, 객체 세팅을 최초 1회 실행
      */
     await chrome.scripting.executeScript({
       target: {
@@ -304,7 +304,6 @@ chrome.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
   /**
    * 탭 제거 시 해당 탭에 실행 중인 Autosave 정지
    */
-
   if (tabStatus[tabId.toString()] === "alive") {
     tabStatus[tabId.toString()] = "closed";
     for (const twipChatboxId of Object.keys(twipChatboxAutosaveIntervals)) {

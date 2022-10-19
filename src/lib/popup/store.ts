@@ -1,12 +1,12 @@
-import { writable } from "svelte/store";
-import { CHAT_TEST_TYPES, LOCALSTORAGE_KEYS } from "@lib/constant";
 import type {
   ChatTestType,
   ChromeRuntimeSendMessageRequest,
   TestMsg,
   UserTypeFilter,
 } from "@src/global";
-import { defaultTestMsgProfiles } from "@lib/chatTest";
+import { writable } from "svelte/store";
+import { defaultTestMsgProfiles } from "@lib/common/chatTest";
+import { CHAT_TEST_TYPES, LOCALSTORAGE_KEYS } from "@lib/common/constant";
 
 /**
  * LocalStorage Init

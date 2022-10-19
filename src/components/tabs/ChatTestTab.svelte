@@ -1,19 +1,18 @@
 <script lang="ts">
-  import { Dialog, DialogDescription, DialogOverlay, DialogTitle, Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@rgossiaux/svelte-headlessui";
-  import { CHAT_TEST_ALERT_TEXT, CHAT_TEST_TYPES, LOCALSTORAGE_KEYS } from "@src/lib/constant";
-  import InputNumber from "../InputNumber.svelte";
-  import { chatTestBtnState, defaultChatTestDelay, isLoading, isRandomChatTestDelayOffset, isVaildcurrentPage, randomChatTestDelayOffset, selectedChatTestType, testMsgProfiles, testUserTypeFilter } from "@lib/store";
-  import {useEffect} from "@src/lib/hooks";
-  import { getTestMsgPreviewHTMLString, sendMsgToChromeRuntime, getTestMsgByRawString, getCurrentTabLocalstorageKey } from "@src/lib/functions";
   import type { UserTypeFilter } from "@src/global";
-  import {defaultTestMsgProfiles, testMsgEmoticons} from '@lib/chatTest';
+  import { Dialog, DialogDescription, DialogOverlay, DialogTitle, Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@rgossiaux/svelte-headlessui";
+  import { CHAT_TEST_ALERT_TEXT, CHAT_TEST_TYPES, LOCALSTORAGE_KEYS } from "@lib/common/constant";
+  import {defaultTestMsgProfiles, testMsgEmoticons} from '@src/lib/common/chatTest';
+  import { chatTestBtnState, defaultChatTestDelay, isLoading, isRandomChatTestDelayOffset, isVaildcurrentPage, randomChatTestDelayOffset, selectedChatTestType, testMsgProfiles, testUserTypeFilter } from "@lib/popup/store";
+  import {useEffect} from "@lib/popup/hooks";
+  import { getTestMsgPreviewHTMLString, sendMsgToChromeRuntime, getTestMsgByRawString, getCurrentTabLocalstorageKey } from "@lib/popup/functions";
+  import InputNumber from "@components/InputNumber.svelte";
 
   let isOpenClearOverlayDialog = false;
   let isOpenSettingTestUserFilter = false;
   let isOpenSettingTestMsg = false;
   let tmpTestUserTypeFilter: UserTypeFilter;
   let testMsgPreviewRawString = '';
-
 
   defaultChatTestDelay.subscribe(value => {
     localStorage.setItem(getCurrentTabLocalstorageKey(LOCALSTORAGE_KEYS.chatTestDelay), value.toString());

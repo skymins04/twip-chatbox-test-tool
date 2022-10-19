@@ -3,6 +3,8 @@ import type {
   ChromeRuntimeSendMessageType,
   TestMsg,
 } from "@src/global";
+import { get } from "svelte/store";
+import { testMsgEmoticons } from "@lib/common/chatTest";
 import {
   chatTestBtnState,
   currentTabId,
@@ -12,9 +14,7 @@ import {
   randomChatTestDelayOffset,
   testMsgProfiles,
   testUserTypeFilter,
-} from "@lib/store";
-import { get } from "svelte/store";
-import { testMsgEmoticons } from "@lib/chatTest";
+} from "@lib/popup/store";
 
 export function getChromeRuntimeSendMessageParam(
   type: ChromeRuntimeSendMessageType

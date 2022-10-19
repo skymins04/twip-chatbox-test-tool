@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { Dialog, DialogOverlay, DialogTitle, Tab, TabGroup, TabList, TabPanel, TabPanels } from "@rgossiaux/svelte-headlessui";
   import type { ChromeRuntimeSendMessageRequest, TwipOverlay, TwipOverlays } from "@src/global";
-  import { AUTOSAVE_ALERT_TEXT, LOCALSTORAGE_KEYS } from "@src/lib/constant";
-  import { useEffect } from "@src/lib/hooks";
-  import { twipChatboxAutosaveStatus } from "@src/lib/store";
+  import { Dialog, DialogOverlay, DialogTitle, Tab, TabGroup, TabList, TabPanel, TabPanels } from "@rgossiaux/svelte-headlessui";
   import CodeMirror from "svelte-codemirror-editor";
   import {css} from "@codemirror/lang-css";
+  import { AUTOSAVE_ALERT_TEXT, LOCALSTORAGE_KEYS } from "@lib/common/constant";
+  import { useEffect } from "@lib/popup/hooks";
+  import { twipChatboxAutosaveStatus } from "@lib/popup/store";
 
   let startFlag = false;
   let autosaveStatus = false;

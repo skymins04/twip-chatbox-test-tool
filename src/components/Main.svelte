@@ -7,7 +7,7 @@
     TabPanels
   } from '@rgossiaux/svelte-headlessui';
   import ChatTestTab from '@components/tabs/ChatTestTab.svelte';
-  import SettingsTab from './tabs/SettingsTab.svelte';
+  import SettingsTab from '@components/tabs/SettingsTab.svelte';
 </script>
 
 <div class="main-wrap">
