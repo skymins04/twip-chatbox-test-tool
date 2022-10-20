@@ -7,20 +7,21 @@
     TabPanels
   } from '@rgossiaux/svelte-headlessui';
   import ChatTestTab from '@components/tabs/ChatTestTab.svelte';
-  import SettingsTab from './tabs/SettingsTab.svelte';
+  import AutosaveTab from '@src/components/tabs/AutosaveTab.svelte';
+  import ManualsaveTab from './tabs/ManualsaveTab.svelte';
 </script>
 
 <div class="main-wrap">
   <TabGroup>
     <TabList class="main-tab-list">
       <Tab class="main-tab-btn">채팅테스트</Tab>
-      <Tab class="main-tab-btn">테마프리셋</Tab>
+      <Tab class="main-tab-btn">오버레이슬롯</Tab>
       <Tab class="main-tab-btn">자동저장</Tab>
     </TabList>
     <TabPanels class="main-tab-panels">
       <TabPanel><ChatTestTab /></TabPanel>
-      <TabPanel>오버레이</TabPanel>
-      <TabPanel><SettingsTab /></TabPanel>
+      <TabPanel><ManualsaveTab /></TabPanel>
+      <TabPanel><AutosaveTab /></TabPanel>
     </TabPanels>
   </TabGroup>
 </div>

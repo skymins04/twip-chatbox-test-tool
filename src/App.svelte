@@ -1,8 +1,8 @@
 <script lang="ts">
 	import Header from "@components/Header.svelte";
   import Main from "@components/Main.svelte";
-  import {useEffect} from "./lib/hooks";
-  import { currentTabId, isLoading, isVaildcurrentPage, selectedChatTestType } from "@lib/store";
+  import {useEffect} from "@lib/popup/hooks";
+  import { currentTabId, isLoading, isVaildcurrentPage, selectedChatTestType } from "@lib/popup/store";
 
 	const init = () => {
 		chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {

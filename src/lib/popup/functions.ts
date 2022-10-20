@@ -3,6 +3,8 @@ import type {
   ChromeRuntimeSendMessageType,
   TestMsg,
 } from "@src/global";
+import { get } from "svelte/store";
+import { testMsgEmoticons } from "@lib/common/chatTest";
 import {
   chatTestBtnState,
   currentTabId,
@@ -12,9 +14,7 @@ import {
   randomChatTestDelayOffset,
   testMsgProfiles,
   testUserTypeFilter,
-} from "@lib/store";
-import { get } from "svelte/store";
-import { testMsgEmoticons } from "@lib/chatTest";
+} from "@lib/popup/store";
 
 export function getChromeRuntimeSendMessageParam(
   type: ChromeRuntimeSendMessageType
@@ -70,4 +70,19 @@ export function getTestMsgByRawString(rawStr: string): TestMsg {
   });
 
   return testMsg;
+}
+
+export function generateRandomString(num) {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  let result = "";
+  const charactersLength = characters.length;
+  for (let i = 0; i < num; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+
+  return result;
+}
+
+export function getCurrentTabLocalstorageKey(str: string) {
+  return str + "_" + get(currentTabId);
 }

@@ -111,6 +111,7 @@ export default [
   {
     input: "src/background.ts",
     output: {
+      sourcemap: true,
       file: "public/background.js",
     },
     plugins: [

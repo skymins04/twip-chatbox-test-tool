@@ -1,54 +1,46 @@
 <script lang="ts">
-  import { Dialog, DialogOverlay, DialogTitle, Tab, TabGroup, TabList, TabPanel, TabPanels } from "@rgossiaux/svelte-headlessui";
   import type { ChromeRuntimeSendMessageRequest, TwipOverlay, TwipOverlays } from "@src/global";
-  import { AUTOSAVE_ALERT_TEXT, LOCALSTORAGE_KEYS } from "@src/lib/constant";
-  import { useEffect } from "@src/lib/hooks";
-  import { twipChatboxAutosaveStatus } from "@src/lib/store";
+  import { Dialog, DialogOverlay, DialogTitle, Tab, TabGroup, TabList, TabPanel, TabPanels } from "@rgossiaux/svelte-headlessui";
   import CodeMirror from "svelte-codemirror-editor";
   import {css} from "@codemirror/lang-css";
+  import { AUTOSAVE_ALERT_TEXT, LOCALSTORAGE_KEYS } from "@lib/common/constant";
+  import { useEffect } from "@lib/popup/hooks";
 
-  let startFlag = false;
   let autosaveStatus = false;
   let isVaildTwipChatboxSettingsPage = false;
-  let autosavedOverlays: TwipOverlays = {};
-  let selectedAutosavedOverlayIndex: number = null;
-  let selectedAutosavedOverlay: TwipOverlay = null;
-  let selectedAutosavedOverlayCSSContent: string = null;
-  let isVaildSelectedAutosavedOverlay = false;
+  let manualsavedOverlays: TwipOverlays = {};
+  let selectedManualsavedOverlayIndex: number = null;
+  let selectedManualsavedOverlay: TwipOverlay = null;
+  let selectedManualsavedOverlayCSSContent: string = null;
+  let isVaildSelectedManualsavedOverlay = false;
   let currentTabTwipChatboxId: string = null;
   let isOpenPreviewOverlay = false;
+  let isOpenEditOverlay = false;
+  let editedOverlayTitle = "";
 
-  const toggleTwipChatboxAutosave = async () => {
+  const saveTwipChatboxTheme = async () => {
     await chrome.runtime.sendMessage({
-      type: "twip-chatbox-set-autosave",
+      type: "twip-chatbox-overlay-save",
       tab: await chrome.tabs.query({active: true, currentWindow: true}).then(tabs => tabs[0]),
-      autosaveStatus: !autosaveStatus
-    } as ChromeRuntimeSendMessageRequest);
+    } as ChromeRuntimeSendMessageRequest, async () => {
+      await getManualsavedOverlayDatas();
+    });
   };
 
-  twipChatboxAutosaveStatus.subscribe(async (value) => {
-    if(startFlag) {
-      await chrome.runtime.sendMessage({
-            type: "twip-chatbox-autosave-enable",
-            autosaveStatus: value,
-            tab: await chrome.tabs.query({active: true, currentWindow: true}).then(tabs => tabs[0]),
-          } as ChromeRuntimeSendMessageRequest);
-      console.log(await chrome.storage.local.get(LOCALSTORAGE_KEYS.twipChatboxAutosaveStatus));
+  const clickEditOverlay = () => {
+    if(isVaildSelectedManualsavedOverlay) {
+      isOpenEditOverlay = true;
+      editedOverlayTitle = selectedManualsavedOverlay.title;
     }
-    else {
-      startFlag = true;
-    }
-  });
-
-  const clickGoToOverlaySettingsPage = async () => {if(isVaildSelectedAutosavedOverlay) {await chrome.tabs.create({url: `https://twip.kr/dashboard/chatbox/?chatbox_key=${selectedAutosavedOverlay.chatboxId}`})}}
+  };
   const clickDownloadOverlay = async () => {
-    if(isVaildSelectedAutosavedOverlay && selectedAutosavedOverlay) {
-      const cssContentObject = await chrome.storage.local.get(selectedAutosavedOverlay.localStorageKey);
-      const file = new Blob([cssContentObject[selectedAutosavedOverlay.localStorageKey]], {type: "text/plain"});
+    if(isVaildSelectedManualsavedOverlay && selectedManualsavedOverlay) {
+      const cssContentObject = await chrome.storage.local.get(selectedManualsavedOverlay.localStorageKey);
+      const file = new Blob([cssContentObject[selectedManualsavedOverlay.localStorageKey]], {type: "text/plain"});
       const aTag = document.createElement("a");
       const fileUrl = URL.createObjectURL(file);
       aTag.href = fileUrl;
-      aTag.download = `twip_customCSS_${selectedAutosavedOverlay.title}_${selectedAutosavedOverlay.chatboxId}_${selectedAutosavedOverlay.latestUpdate}.css`;
+      aTag.download = `twip_customCSS_${selectedManualsavedOverlay.title}_${selectedManualsavedOverlay.chatboxId}_${selectedManualsavedOverlay.latestUpdate}.css`;
       document.body.appendChild(aTag);
       aTag.click();
       setTimeout(() => {
@@ -58,13 +50,45 @@
     }
   };
   const clickApplyOverlayToCurrentTab = async () => {
-    if(!autosaveStatus && isVaildTwipChatboxSettingsPage && isVaildSelectedAutosavedOverlay && selectedAutosavedOverlay) {
+    if(!autosaveStatus && isVaildTwipChatboxSettingsPage && isVaildSelectedManualsavedOverlay && selectedManualsavedOverlay) {
       await chrome.runtime.sendMessage({
-          type: "twip-chatbox-apply",
+          type: "twip-chatbox-overlay-apply",
           tab: await chrome.tabs.query({active: true, currentWindow: true}).then(tabs => tabs[0]),
-          overlay: selectedAutosavedOverlay 
+          overlay: selectedManualsavedOverlay 
         } as ChromeRuntimeSendMessageRequest);
     }
+  };
+  const getManualsavedOverlayDatas = async () => {
+    await chrome.storage.local.get('TWIP_MANUALSAVED_OVERLAYS').then(({TWIP_MANUALSAVED_OVERLAYS}) => {
+        if(!TWIP_MANUALSAVED_OVERLAYS) manualsavedOverlays = {};
+        else manualsavedOverlays = TWIP_MANUALSAVED_OVERLAYS;
+    });
+  };
+  const renameOverlay = async () => {
+    if(editedOverlayTitle.trim() !== "") {
+      const tmp: TwipOverlay = { ...selectedManualsavedOverlay, title: editedOverlayTitle };
+      await chrome.runtime.sendMessage({
+        type: "twip-chatbox-overlay-rename",
+        overlay: tmp 
+      } as ChromeRuntimeSendMessageRequest, () => {
+        setTimeout(async () => {
+          await getManualsavedOverlayDatas();
+        }, 100);
+        isOpenEditOverlay = false;
+      });
+    }
+  };
+  const removeOverlay = async () => {
+    await chrome.runtime.sendMessage({
+      type: "twip-chatbox-overlay-remove",
+      tab: await chrome.tabs.query({active: true, currentWindow: true}).then(tabs => tabs[0]),
+      overlay: selectedManualsavedOverlay 
+    } as ChromeRuntimeSendMessageRequest, () => {
+      setTimeout(async () => {
+        await getManualsavedOverlayDatas();
+      }, 100);
+      isOpenEditOverlay = false;
+    });
   };
 
   (async () => {
@@ -90,47 +114,24 @@
         })
         .then((matchResult) => matchResult[0].result);
 
-    const getAutosaveDatas = async () => {
-      await chrome.runtime.sendMessage({
-        type: "twip-chatbox-get-autosave",
-        tabId: currentTab.id,
-      } as ChromeRuntimeSendMessageRequest, (res) => {
-        console.log('get autosave current tab', res);
-        if(res && (res.autosaveStatus === true || res.autosaveStatus === false)) {
-          autosaveStatus = res.autosaveStatus;
-        }
-      });
-
-      await chrome.storage.local.get('TWIP_AUTOSAVED_OVERLAYS').then(({TWIP_AUTOSAVED_OVERLAYS}) => {
-          if(!TWIP_AUTOSAVED_OVERLAYS) autosavedOverlays = {};
-          else autosavedOverlays = TWIP_AUTOSAVED_OVERLAYS;
-      });
-    };
-
-    getAutosaveDatas();
-
-    setInterval(async () => {
-      getAutosaveDatas();
-    }, 100);
+    await getManualsavedOverlayDatas();
   })();
 
   useEffect(() => {
-    isVaildSelectedAutosavedOverlay = 
-      selectedAutosavedOverlay 
-      && selectedAutosavedOverlayIndex !== null;
-      if(selectedAutosavedOverlay) {
-        chrome.storage.local.get(selectedAutosavedOverlay.localStorageKey).then(res => {selectedAutosavedOverlayCSSContent = res[selectedAutosavedOverlay.localStorageKey];});
-      }
-  }, () => [selectedAutosavedOverlayIndex, selectedAutosavedOverlay]);
+    isVaildSelectedManualsavedOverlay =  selectedManualsavedOverlay && selectedManualsavedOverlayIndex !== null;
+    if(selectedManualsavedOverlay) {
+      chrome.storage.local.get(selectedManualsavedOverlay.localStorageKey).then(res => {selectedManualsavedOverlayCSSContent = res[selectedManualsavedOverlay.localStorageKey];});
+    }
+  }, () => [selectedManualsavedOverlayIndex, selectedManualsavedOverlay]);
 
   useEffect(() => {
-    if(selectedAutosavedOverlay) {
-      for(const key of Object.keys(autosavedOverlays)) {
-        if(selectedAutosavedOverlay.chatboxId === autosavedOverlays[key].chatboxId)
-          selectedAutosavedOverlay = autosavedOverlays[key];
+    if(selectedManualsavedOverlay) {
+      for(const key of Object.keys(manualsavedOverlays)) {
+        if(selectedManualsavedOverlay.chatboxId === manualsavedOverlays[key].chatboxId)
+          selectedManualsavedOverlay = manualsavedOverlays[key];
       }
     }
-  }, () => [autosavedOverlays])
+  }, () => [manualsavedOverlays])
 
 </script>
 
@@ -141,58 +142,45 @@
 
   <div class="settings-options">
     <div class="settings-options-item">
-      <span class="title">현재탭 자동저장 상태</span>
+      <span class="title">현재 탭 커스텀 테마 저장</span>
       <div class="input">
-        {autosaveStatus ? '활성' : '비활성'}
-      </div>
-    </div>
-    <div class="settings-options-item">
-      <span class="title">자동저장 항상 실행</span>
-      <div class="input">
-        <input type="checkbox" id="twip-chatbox-autosave-status-checkbox" bind:checked={$twipChatboxAutosaveStatus}/>
-        <label for="twip-chatbox-autosave-status-checkbox" />
-      </div>
-    </div>
-    <div class="settings-options-item">
-      <span class="title">현재 탭 자동저장 실행</span>
-      <div class="input">
-        <div on:click={() => {if(isVaildTwipChatboxSettingsPage) toggleTwipChatboxAutosave()}} class={`btn ${isVaildTwipChatboxSettingsPage ? '' : 'disabled'}`}>{autosaveStatus ? '비활성화' : '활성화'}</div>
+        <div on:click={() => {if(isVaildTwipChatboxSettingsPage) saveTwipChatboxTheme()}} class={`btn ${isVaildTwipChatboxSettingsPage ? '' : 'disabled'}`}>저장하기</div>
       </div>
     </div>
   </div>
 
-  <div class="settings-autosaved-overlays-wrap">
-    <div class="settings-autosaved-overlays-title">자동저장된 오버레이 커스텀테마</div>
-    <div class="settings-autosaved-overlays">
-      {#if Object.keys(autosavedOverlays).length !== 0}
-        {#each Object.keys(autosavedOverlays) as key, i}
-          <div class={`settings-autosaved-overlay ${selectedAutosavedOverlayIndex === i ? 'selected' : ''}`} 
+  <div class="settings-manualsaved-overlays-wrap">
+    <div class="settings-manualsaved-overlays-title">저장된 오버레이 커스텀테마</div>
+    <div class="settings-manualsaved-overlays">
+      {#if Object.keys(manualsavedOverlays).length !== 0}
+        {#each Object.keys(manualsavedOverlays) as key, i}
+          <div class={`settings-manualsaved-overlay ${selectedManualsavedOverlayIndex === i ? 'selected' : ''}`} 
               on:click={() => {
-                selectedAutosavedOverlayIndex = i;
-                selectedAutosavedOverlay = autosavedOverlays[key];
-                console.log('selected', selectedAutosavedOverlayIndex, selectedAutosavedOverlay);
+                selectedManualsavedOverlayIndex = i;
+                selectedManualsavedOverlay = manualsavedOverlays[key];
+                console.log('selected', selectedManualsavedOverlayIndex, selectedManualsavedOverlay);
               }}>
-            <div class="settings-autosaved-overlay-title">{autosavedOverlays[key].title}{currentTabTwipChatboxId && currentTabTwipChatboxId === autosavedOverlays[key].chatboxId ? ' (현재탭)' : '' }</div>
-            <div class="settings-autosaved-overlay-id">id: {autosavedOverlays[key].chatboxId}</div>
-            <div class="settings-autosaved-overlay-latest-update">최신 자동저장 일자: {autosavedOverlays[key].latestUpdate}</div>
+            <div class="settings-manualsaved-overlay-title">{manualsavedOverlays[key].title}{currentTabTwipChatboxId && currentTabTwipChatboxId === manualsavedOverlays[key].chatboxId ? ' (현재탭)' : '' }</div>
+            <div class="settings-manualsaved-overlay-id">id: {manualsavedOverlays[key].chatboxId}</div>
+            <div class="settings-manualsaved-overlay-latest-update">저장 일자: {manualsavedOverlays[key].latestUpdate}</div>
           </div>
         {/each}
       {:else}
-      <div class="settings-autosaved-overlay-none"></div>
+      <div class="settings-manualsaved-overlay-none"></div>
       {/if}
     </div>
 
-    <div class="settings-autosaved-overlays-actions">
-      <div class={`btn ${!autosaveStatus && isVaildSelectedAutosavedOverlay && isVaildTwipChatboxSettingsPage ? '' : 'disabled'}`} on:click={clickApplyOverlayToCurrentTab}>현재 탭에 적용</div>
-      <div class={`btn ${isVaildSelectedAutosavedOverlay ? '' : 'disabled'}`} on:click={clickGoToOverlaySettingsPage}>바로가기</div>
-      <div class={`btn ${isVaildSelectedAutosavedOverlay ? '' : 'disabled'}`} on:click={() => {if(isVaildSelectedAutosavedOverlay && selectedAutosavedOverlay && selectedAutosavedOverlayCSSContent) isOpenPreviewOverlay = !isOpenPreviewOverlay;}}>미리보기</div>
-      <div class={`btn ${isVaildSelectedAutosavedOverlay ? '' : 'disabled'}`} on:click={clickDownloadOverlay}>다운로드</div>
+    <div class="settings-manualsaved-overlays-actions">
+      <div class={`btn ${!autosaveStatus && isVaildSelectedManualsavedOverlay && isVaildTwipChatboxSettingsPage ? '' : 'disabled'}`} on:click={clickApplyOverlayToCurrentTab}>현재 탭에 적용</div>
+      <div class={`btn ${isVaildSelectedManualsavedOverlay ? '' : 'disabled'}`} on:click={clickEditOverlay}>수정</div>
+      <div class={`btn ${isVaildSelectedManualsavedOverlay ? '' : 'disabled'}`} on:click={() => {if(isVaildSelectedManualsavedOverlay && selectedManualsavedOverlay && selectedManualsavedOverlayCSSContent) isOpenPreviewOverlay = !isOpenPreviewOverlay;}}>미리보기</div>
+      <div class={`btn ${isVaildSelectedManualsavedOverlay ? '' : 'disabled'}`} on:click={clickDownloadOverlay}>다운로드</div>
     </div>
 
     
   </div>
   
-  {#if isOpenPreviewOverlay}
+  {#if isOpenPreviewOverlay || isOpenEditOverlay}
     <div style={"display:block; width: 100%; height: 100%; position: fixed !important; top: 0; left: 0; background-color: rgba(0, 0, 0, .3); animation: opacity-fade .2s ease-in-out;"}></div>
   {/if}
   <Dialog class="dialog" open={isOpenPreviewOverlay} on:close={() => {isOpenPreviewOverlay = false;}}>
@@ -217,14 +205,14 @@
             }
           }}
           readonly={true}
-          value={selectedAutosavedOverlayCSSContent ? selectedAutosavedOverlayCSSContent : ''}
+          value={selectedManualsavedOverlayCSSContent ? selectedManualsavedOverlayCSSContent : ''}
           lang={css()}/>
         </TabPanel>
         <TabPanel>
           <div class="overlay-preview-wrap">
             <div class="preview-html-tag">
               {@html `<style>${
-                selectedAutosavedOverlayCSSContent
+                selectedManualsavedOverlayCSSContent
                   .replace(/\\n/g, '')
                   .replace(/\$font_sizepx/g, '12px')
                   .replace(/\$font_face/g, 'Nanum Gothic')
@@ -255,10 +243,41 @@
     
     <div class="btn" on:click={() => {isOpenPreviewOverlay = false;}}>닫기</div>
   </Dialog>
+  <Dialog class="dialog" open={isOpenEditOverlay} on:close={() => {isOpenEditOverlay = false;}}>
+    <DialogOverlay/>
+    <DialogTitle>오버레이 수정</DialogTitle>
+
+    <div class="edit-overlay-name">
+      <input type="text" id="edit-overlay-name-input" bind:value={editedOverlayTitle}>
+      <div class="btn" on:click={renameOverlay}>이름 변경</div>
+    </div>
+    <div class="btn" on:click={removeOverlay}>오버레이 삭제</div>
+    <div class="btn" on:click={() => {isOpenEditOverlay = false;}}>닫기</div>
+  </Dialog>
 
 </div>
 
 <style lang="scss">
+  .edit-overlay-name {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: .5em;
+    margin-bottom: 20px;
+
+    #edit-overlay-name-input {
+      border: 1px solid #ccc;
+      width: 100%;
+      height: 22px;
+    }
+    
+    .btn {
+      width: 7em;
+    }
+  }
+  
+
   .overlay-preview-wrap {
     position: relative;
     box-sizing: border-box;
@@ -278,11 +297,11 @@
     flex-direction: column;
     gap: 20px;
 
-    .settings-autosaved-overlays-wrap {
+    .settings-manualsaved-overlays-wrap {
       position: relative;
       width: 100%;
 
-      .settings-autosaved-overlays-actions {
+      .settings-manualsaved-overlays-actions {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -291,22 +310,23 @@
         margin-top: 10px;
       }
 
-      .settings-autosaved-overlays-title {
+      .settings-manualsaved-overlays-title {
         width: 100%;
         font-size: 12px;
         font-weight: bold;
         margin-bottom: 10px;
       }
 
-      .settings-autosaved-overlays {
+      .settings-manualsaved-overlays {
         position: relative;
         width: 100%;
         max-height: 150px;
+        min-height: 100px;
         padding: .2em;
         border: 1px solid #eee;
         overflow-y: scroll;
 
-        .settings-autosaved-overlay-none {
+        .settings-manualsaved-overlay-none {
           display: flex;
           justify-content: center;
           align-items: center;
@@ -319,7 +339,7 @@
           }
         }
 
-        .settings-autosaved-overlay {
+        .settings-manualsaved-overlay {
           position: relative;
           display: block;
           width: 100%;
@@ -327,17 +347,17 @@
           transition: .2s;
           border-bottom: 1px solid #eee;
 
-          .settings-autosaved-overlay-title {
+          .settings-manualsaved-overlay-title {
             display: block;
             font-size: 12px;
             font-weight: bold;
           }
-          .settings-autosaved-overlay-id {
+          .settings-manualsaved-overlay-id {
             display: block;
             font-size: 8px;
             color: #666;
           }
-          .settings-autosaved-overlay-latest-update {
+          .settings-manualsaved-overlay-latest-update {
             display: block;
             font-size: 10px;
             color: #666;

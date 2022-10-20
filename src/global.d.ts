@@ -66,16 +66,18 @@ export interface ChatTestType {
   unavailable: boolean;
 }
 export type ChromeRuntimeSendMessageType =
-  | "twip-chat-control"
-  | "twip-chat-clear"
+  | "twip-chatbox-chattest-control"
+  | "twip-chatbox-chattest-clear"
   | "twip-chatbox-autosave-enable"
-  | "twip-chatbox-get-autosave"
-  | "twip-chatbox-set-autosave"
-  | "twip-chatbox-apply";
+  | "twip-chatbox-autosave-get"
+  | "twip-chatbox-autosave-set"
+  | "twip-chatbox-overlay-apply"
+  | "twip-chatbox-overlay-save"
+  | "twip-chatbox-overlay-rename"
+  | "twip-chatbox-overlay-remove";
 
-export interface UserTypeFilter {
-  [key: TwitchUserType]: boolean;
-}
+export type UserTypeFilter = Record<TwitchUserType, boolean>;
+
 export interface ChromeRuntimeSendMessageRequest {
   type: ChromeRuntimeSendMessageType;
   tabActivate?: boolean;
