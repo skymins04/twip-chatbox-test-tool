@@ -11,12 +11,8 @@ export const chromeAlert = async (tabId: number, msg: string) => {
   });
 };
 
-export const chromeConfirm = async (
-  tabId: number,
-  msg: string,
-  callback: () => void
-) => {
-  await chrome.scripting
+export async function chromeConfirm(tabId: number, msg: string) {
+  return await chrome.scripting
     .executeScript({
       target: {
         tabId,
@@ -27,18 +23,15 @@ export const chromeConfirm = async (
       args: [msg],
       world: "MAIN",
     })
-    .then((result) => result[0].result)
-    .then((result) => {
-      if (result) callback();
-    });
-};
+    .then((result) => result[0].result);
+}
 
-export const chromePrompt = async (
+export async function chromePrompt(
   tabId: number,
   msg: string,
   defaultValue = ""
-) => {
-  await chrome.scripting
+) {
+  return await chrome.scripting
     .executeScript({
       target: {
         tabId,
@@ -50,9 +43,9 @@ export const chromePrompt = async (
       world: "MAIN",
     })
     .then((result) => result[0].result);
-};
+}
 
-export const getTwipOverlayData = async (tabId: number) => {
+export async function getTwipOverlayData(tabId: number) {
   return await chrome.scripting
     .executeScript({
       target: {
@@ -70,10 +63,24 @@ export const getTwipOverlayData = async (tabId: number) => {
       world: "MAIN",
     })
     .then((result) => result[0].result);
-};
+}
 
-export const getAutosaveLocalStorageKey = (twipChatboxId: string) =>
+export const getAutosavedThemeLocalStorageKey = (twipChatboxId: string) =>
   `TWIP_CHATBOX_AUTOSAVE_${twipChatboxId}`;
+
+export const getManualsavedThemeLocalStorage = (id: string) =>
+  `TWIP_CHATBOX_MANUALSAVE_${id}`;
 
 export const isVaildTwipChatboxSettingsPage = (url: string) =>
   url.match(/^http(s?)\:\/\/twip\.kr\/dashboard\/chatbox.*$/) ? true : false;
+
+export function generateRandomString(num) {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  let result = "";
+  const charactersLength = characters.length;
+  for (let i = 0; i < num; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+
+  return result;
+}

@@ -10,7 +10,10 @@ import { LOCALSTORAGE_KEYS } from "@lib/common/constant";
 import {
   chromeAlert,
   chromeConfirm,
-  getAutosaveLocalStorageKey,
+  chromePrompt,
+  generateRandomString,
+  getAutosavedThemeLocalStorageKey,
+  getManualsavedThemeLocalStorage,
   getTwipOverlayData,
   isVaildTwipChatboxSettingsPage,
 } from "@lib/background/functions";
@@ -38,10 +41,11 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
         if (
           customThemeSource &&
           customThemeSource.css &&
-          customThemeSource.title
+          customThemeSource.title &&
+          customThemeSource.timestamp
         ) {
           const autosaveLocalStorageKey =
-            getAutosaveLocalStorageKey(twipChatboxId);
+            getAutosavedThemeLocalStorageKey(twipChatboxId);
 
           let tmp: { [key: string]: any } = {};
           tmp[autosaveLocalStorageKey] = customThemeSource.css;
@@ -49,7 +53,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 
           tmp = {};
           const autosavedOverlayData: TwipOverlay = {
-            localStorageKey: getAutosaveLocalStorageKey(twipChatboxId),
+            localStorageKey: getAutosavedThemeLocalStorageKey(twipChatboxId),
             chatboxId: twipChatboxId,
             latestUpdate: customThemeSource.timestamp,
             title: customThemeSource.title,
@@ -109,17 +113,14 @@ chrome.runtime.onMessage.addListener(
               !currentTabIsRunning &&
               isVaildTwipChatboxSettingsPage(request.tab.url)
             ) {
-              await chromeConfirm(
-                request.tab.id,
-                "현재 탭에 Twip Chatbox 자동저장을 실행하시겠습니까?",
-                async () => {
-                  await runTwipChatboxAutosave(
-                    request.tab.id,
-                    request.tab,
-                    true
-                  );
-                }
-              );
+              if (
+                await chromeConfirm(
+                  request.tab.id,
+                  "현재 탭에 Twip Chatbox 자동저장을 실행하시겠습니까?"
+                )
+              ) {
+                await runTwipChatboxAutosave(request.tab.id, request.tab, true);
+              }
             }
             await chromeAlert(
               request.tab.id,
@@ -178,6 +179,106 @@ chrome.runtime.onMessage.addListener(
             request.tab.id,
             `현재 탭에 선택한 자동저장 오버레이를 적용했습니다.\nTwip Chatbox 설정페이지의 "설정하기" 버튼을 클릭해야 저장됩니다.`
           );
+        }
+        break;
+      case "twip-chatbox-overlay-save":
+        if (isVaildTwipChatboxSettingsPage(request.tab.url)) {
+          const customThemeSource = await getTwipOverlayData(request.tab.id);
+          if (
+            customThemeSource &&
+            customThemeSource.css &&
+            customThemeSource.title &&
+            customThemeSource.timestamp
+          ) {
+            const overlayCustomThemeTitle = await chromePrompt(
+              request.tab.id,
+              "저장할 오버레이 커스텀 테마의 이름을 입력하세요.",
+              customThemeSource.title
+            );
+
+            const themeId = generateRandomString(10);
+            const manualSavedLocalStorageKey =
+              getManualsavedThemeLocalStorage(themeId);
+            let tmp: { [key: string]: any } = {};
+            tmp[manualSavedLocalStorageKey] = customThemeSource.css;
+            await chrome.storage.local.set(tmp);
+
+            tmp = {};
+            const manualSavedOverlayData: TwipOverlay = {
+              localStorageKey: manualSavedLocalStorageKey,
+              chatboxId: themeId,
+              latestUpdate: customThemeSource.timestamp,
+              title: overlayCustomThemeTitle,
+            };
+            await chrome.storage.local
+              .get("TWIP_MANUALSAVED_OVERLAYS")
+              .then(async ({ TWIP_MANUALSAVED_OVERLAYS }) => {
+                if (!TWIP_MANUALSAVED_OVERLAYS) {
+                  tmp[themeId] = manualSavedOverlayData;
+                  await chrome.storage.local.set({
+                    TWIP_MANUALSAVED_OVERLAYS: tmp,
+                  });
+                } else {
+                  tmp = TWIP_MANUALSAVED_OVERLAYS;
+                  tmp[themeId] = manualSavedOverlayData;
+                  await chrome.storage.local.set({
+                    TWIP_MANUALSAVED_OVERLAYS: tmp,
+                  });
+                }
+              });
+            await chromeAlert(
+              request.tab.id,
+              `커스텀 테마 "${overlayCustomThemeTitle}"가 저장되었습니다.`
+            );
+            sendResponse({});
+            break;
+          }
+        }
+      case "twip-chatbox-overlay-rename":
+        await chrome.storage.local
+          .get("TWIP_MANUALSAVED_OVERLAYS")
+          .then(async ({ TWIP_MANUALSAVED_OVERLAYS }) => {
+            if (
+              TWIP_MANUALSAVED_OVERLAYS &&
+              TWIP_MANUALSAVED_OVERLAYS[request.overlay.chatboxId]
+            ) {
+              let tmp: { [key: string]: any } = TWIP_MANUALSAVED_OVERLAYS;
+              tmp[request.overlay.chatboxId].title = request.overlay.title;
+              await chrome.storage.local.set({
+                TWIP_MANUALSAVED_OVERLAYS: tmp,
+              });
+            }
+          });
+        sendResponse({});
+        break;
+      case "twip-chatbox-overlay-remove":
+        if (
+          await chromeConfirm(
+            request.tab.id,
+            "정말 오버레이를 삭제하시겠습니까?\n삭제된 오버레이는 복구할 수 없습니다."
+          )
+        ) {
+          await chrome.storage.local
+            .get("TWIP_MANUALSAVED_OVERLAYS")
+            .then(async ({ TWIP_MANUALSAVED_OVERLAYS }) => {
+              if (
+                TWIP_MANUALSAVED_OVERLAYS &&
+                TWIP_MANUALSAVED_OVERLAYS[request.overlay.chatboxId]
+              ) {
+                delete TWIP_MANUALSAVED_OVERLAYS[request.overlay.chatboxId];
+                await chrome.storage.local.set({
+                  TWIP_MANUALSAVED_OVERLAYS,
+                });
+              }
+            })
+            .then(async () => {
+              await chromeAlert(request.tab.id, "오버레이를 삭제했습니다.");
+            })
+            .then(() => {
+              sendResponse({});
+            });
+        } else {
+          sendResponse({});
         }
         break;
     }
@@ -385,14 +486,15 @@ const runTwipChatboxAutosave = async (
       } else if (
         twipChatboxAutosaveIntervals[twipChatboxId].tabId !== tabId.toString()
       ) {
-        await chromeConfirm(
-          tabId,
-          "이미 동일한 Twip Chatbox가 다른 탭에서 자동저장을 실행 중이므로 현재 탭에서 자동저장을 실행할 수 없습니다.\n다른 탭에서 실행중인 자동저장을 종료하고 현재 탭에서 자동저장을 실행할까요?",
-          async () => {
-            await stopTwipChatboxAutosave(twipChatboxId);
-            await createTwipChatBoxAutosaveInterval(tabId, twipChatboxId);
-          }
-        );
+        if (
+          await chromeConfirm(
+            tabId,
+            "이미 동일한 Twip Chatbox가 다른 탭에서 자동저장을 실행 중이므로 현재 탭에서 자동저장을 실행할 수 없습니다.\n다른 탭에서 실행중인 자동저장을 종료하고 현재 탭에서 자동저장을 실행할까요?"
+          )
+        ) {
+          await stopTwipChatboxAutosave(twipChatboxId);
+          await createTwipChatBoxAutosaveInterval(tabId, twipChatboxId);
+        }
       }
     }
   } else {

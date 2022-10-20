@@ -72,7 +72,9 @@ export type ChromeRuntimeSendMessageType =
   | "twip-chatbox-autosave-get"
   | "twip-chatbox-autosave-set"
   | "twip-chatbox-overlay-apply"
-  | "twip-chatbox-overlay-save";
+  | "twip-chatbox-overlay-save"
+  | "twip-chatbox-overlay-rename"
+  | "twip-chatbox-overlay-remove";
 
 export type UserTypeFilter = Record<TwitchUserType, boolean>;
 
