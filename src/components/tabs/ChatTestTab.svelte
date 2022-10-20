@@ -34,14 +34,14 @@
   useEffect(() => {
     if(!$isLoading) {
       console.log('?')
-      sendMsgToChromeRuntime("twip-chat-control");
+      sendMsgToChromeRuntime("twip-chatbox-chattest-control");
     }
   }, () => [$chatTestBtnState]);
 
   useEffect(() => {
     if(!$isLoading && $chatTestBtnState) {
       console.log('??');
-      sendMsgToChromeRuntime("twip-chat-control");
+      sendMsgToChromeRuntime("twip-chatbox-chattest-control");
     }
   }, () => [$testUserTypeFilter, $defaultChatTestDelay, $isRandomChatTestDelayOffset, $randomChatTestDelayOffset]);
 
@@ -128,7 +128,7 @@
     <DialogOverlay/>
     <DialogTitle>오버레이 화면 초기화</DialogTitle>
     <DialogDescription>오버레이에 발행된 모든 테스트 메시지를 제거하시겠습니까?</DialogDescription>
-    <div class="btn" on:click={() => {sendMsgToChromeRuntime("twip-chat-clear"); isOpenClearOverlayDialog = false;}}>확인</div>
+    <div class="btn" on:click={() => {sendMsgToChromeRuntime("twip-chatbox-chattest-clear"); isOpenClearOverlayDialog = false;}}>확인</div>
     <div class="btn" on:click={() => {isOpenClearOverlayDialog = false;}}>취소</div>
   </Dialog>
   <Dialog class="dialog" open={isOpenSettingTestUserFilter} on:close={() => {isOpenSettingTestUserFilter = false;}}>
@@ -184,7 +184,7 @@
     <div class="btn" on:click={() => {testUserTypeFilter.set({...tmpTestUserTypeFilter}); localStorage.setItem(getCurrentTabLocalstorageKey(LOCALSTORAGE_KEYS.userTypeFilter),JSON.stringify($testUserTypeFilter)); isOpenSettingTestUserFilter = false;}}>저장</div>
     <div class="btn" on:click={() => {isOpenSettingTestUserFilter = false;}}>취소</div>
   </Dialog>
-  <Dialog class="dialog" open={isOpenSettingTestMsg} on:close={() => {isOpenSettingTestMsg = false; sendMsgToChromeRuntime("twip-chat-control");}}>
+  <Dialog class="dialog" open={isOpenSettingTestMsg} on:close={() => {isOpenSettingTestMsg = false; sendMsgToChromeRuntime("twip-chatbox-chattest-control");}}>
     <DialogOverlay/>
     <DialogTitle>테스트 메시지 설정</DialogTitle>
     <DialogDescription>채팅 테스트에 사용될 메시지를 설정할 수 있습니다.<br><span style="font-size: 6px; font-weight: bold;">(주의) 테스트 메시지 리스트를 수정하면 다른 탭의 테스트 툴에도 동일하게 적용됩니다.</span></DialogDescription>
@@ -213,7 +213,7 @@
       {/each}
     </div>
 
-    <div class="btn" on:click={() => {isOpenSettingTestMsg = false; sendMsgToChromeRuntime("twip-chat-control");}}>완료</div>
+    <div class="btn" on:click={() => {isOpenSettingTestMsg = false; sendMsgToChromeRuntime("twip-chatbox-chattest-control");}}>완료</div>
     <div class="btn" on:click={() => {testMsgProfiles.set(defaultTestMsgProfiles); localStorage.setItem(LOCALSTORAGE_KEYS.testMsg, JSON.stringify($testMsgProfiles));}}>초기화</div>
   </Dialog>
 </div>

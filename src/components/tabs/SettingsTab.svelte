@@ -20,7 +20,7 @@
 
   const toggleTwipChatboxAutosave = async () => {
     await chrome.runtime.sendMessage({
-      type: "twip-chatbox-set-autosave",
+      type: "twip-chatbox-autosave-set",
       tab: await chrome.tabs.query({active: true, currentWindow: true}).then(tabs => tabs[0]),
       autosaveStatus: !autosaveStatus
     } as ChromeRuntimeSendMessageRequest);
@@ -60,7 +60,7 @@
   const clickApplyOverlayToCurrentTab = async () => {
     if(!autosaveStatus && isVaildTwipChatboxSettingsPage && isVaildSelectedAutosavedOverlay && selectedAutosavedOverlay) {
       await chrome.runtime.sendMessage({
-          type: "twip-chatbox-apply",
+          type: "twip-chatbox-overlay-apply",
           tab: await chrome.tabs.query({active: true, currentWindow: true}).then(tabs => tabs[0]),
           overlay: selectedAutosavedOverlay 
         } as ChromeRuntimeSendMessageRequest);
@@ -92,7 +92,7 @@
 
     const getAutosaveDatas = async () => {
       await chrome.runtime.sendMessage({
-        type: "twip-chatbox-get-autosave",
+        type: "twip-chatbox-autosave-get",
         tabId: currentTab.id,
       } as ChromeRuntimeSendMessageRequest, (res) => {
         console.log('get autosave current tab', res);

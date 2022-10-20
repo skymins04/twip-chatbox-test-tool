@@ -278,6 +278,25 @@ const chromeConfirm = async (tabId, msg, callback) => {
             callback();
     });
 };
+const getTwipOverlayData = async (tabId) => {
+    return await chrome.scripting
+        .executeScript({
+        target: {
+            tabId,
+        },
+        func: () => {
+            const $ = window.$;
+            const date = new Date();
+            return {
+                css: $(".CodeMirror")[0].CodeMirror.getValue(),
+                title: $("#chatbox_name").val(),
+                timestamp: `${date.toLocaleDateString()}  ${date.toLocaleTimeString()}`,
+            };
+        },
+        world: "MAIN",
+    })
+        .then((result) => result[0].result);
+};
 const getAutosaveLocalStorageKey = (twipChatboxId) => `TWIP_CHATBOX_AUTOSAVE_${twipChatboxId}`;
 const isVaildTwipChatboxSettingsPage = (url) => url.match(/^http(s?)\:\/\/twip\.kr\/dashboard\/chatbox.*$/) ? true : false;
 
@@ -295,23 +314,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
                     delete twipChatboxAutosaveIntervals[twipChatboxId];
             }
             else {
-                const customThemeSource = await chrome.scripting
-                    .executeScript({
-                    target: {
-                        tabId,
-                    },
-                    func: () => {
-                        const $ = window.$;
-                        const date = new Date();
-                        return {
-                            css: $(".CodeMirror")[0].CodeMirror.getValue(),
-                            title: $("#chatbox_name").val(),
-                            timestamp: `${date.toLocaleDateString()}  ${date.toLocaleTimeString()}`,
-                        };
-                    },
-                    world: "MAIN",
-                })
-                    .then((result) => result[0].result);
+                const customThemeSource = await getTwipOverlayData(tabId);
                 if (customThemeSource &&
                     customThemeSource.css &&
                     customThemeSource.title) {
@@ -351,11 +354,11 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 });
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     switch (request.type) {
-        case "twip-chat-control":
+        case "twip-chatbox-chattest-control":
             if (request.tabId)
                 await twipChatControl(request);
             break;
-        case "twip-chat-clear":
+        case "twip-chatbox-chattest-clear":
             await twipChatClear(request);
             break;
         case "twip-chatbox-autosave-enable":
@@ -382,7 +385,7 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
                 }
             }
             break;
-        case "twip-chatbox-get-autosave":
+        case "twip-chatbox-autosave-get":
             let tmpTwipChatboxId = null;
             for (const twipChatboxId of Object.keys(twipChatboxAutosaveIntervals)) {
                 if (twipChatboxAutosaveIntervals[twipChatboxId] &&
@@ -399,10 +402,10 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
                 autosaveStatus: false,
                 twipChatboxId: tmpTwipChatboxId,
             });
-        case "twip-chatbox-set-autosave":
+        case "twip-chatbox-autosave-set":
             await runTwipChatboxAutosave(request.tab.id, request.tab, request.autosaveStatus);
             break;
-        case "twip-chatbox-apply":
+        case "twip-chatbox-overlay-apply":
             if (isVaildTwipChatboxSettingsPage(request.tab.url)) {
                 const customCSS = await chrome.storage.local
                     .get(request.overlay.localStorageKey)

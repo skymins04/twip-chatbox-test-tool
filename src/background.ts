@@ -11,6 +11,7 @@ import {
   chromeAlert,
   chromeConfirm,
   getAutosaveLocalStorageKey,
+  getTwipOverlayData,
   isVaildTwipChatboxSettingsPage,
 } from "@lib/background/functions";
 
@@ -32,23 +33,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
         if (twipChatboxAutosaveIntervals[twipChatboxId])
           delete twipChatboxAutosaveIntervals[twipChatboxId];
       } else {
-        const customThemeSource = await chrome.scripting
-          .executeScript({
-            target: {
-              tabId,
-            },
-            func: () => {
-              const $ = (window as any).$;
-              const date = new Date();
-              return {
-                css: $(".CodeMirror")[0].CodeMirror.getValue(),
-                title: $("#chatbox_name").val(),
-                timestamp: `${date.toLocaleDateString()}  ${date.toLocaleTimeString()}`,
-              };
-            },
-            world: "MAIN",
-          })
-          .then((result) => result[0].result);
+        const customThemeSource = await getTwipOverlayData(tabId);
 
         if (
           customThemeSource &&
@@ -95,10 +80,10 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 chrome.runtime.onMessage.addListener(
   async (request: ChromeRuntimeSendMessageRequest, sender, sendResponse) => {
     switch (request.type) {
-      case "twip-chat-control":
+      case "twip-chatbox-chattest-control":
         if (request.tabId) await twipChatControl(request);
         break;
-      case "twip-chat-clear":
+      case "twip-chatbox-chattest-clear":
         await twipChatClear(request);
         break;
       case "twip-chatbox-autosave-enable":
@@ -143,7 +128,7 @@ chrome.runtime.onMessage.addListener(
           }
         }
         break;
-      case "twip-chatbox-get-autosave":
+      case "twip-chatbox-autosave-get":
         let tmpTwipChatboxId: string = null;
         for (const twipChatboxId of Object.keys(twipChatboxAutosaveIntervals)) {
           if (
@@ -163,14 +148,14 @@ chrome.runtime.onMessage.addListener(
           autosaveStatus: false,
           twipChatboxId: tmpTwipChatboxId,
         });
-      case "twip-chatbox-set-autosave":
+      case "twip-chatbox-autosave-set":
         await runTwipChatboxAutosave(
           request.tab.id,
           request.tab,
           request.autosaveStatus
         );
         break;
-      case "twip-chatbox-apply":
+      case "twip-chatbox-overlay-apply":
         if (isVaildTwipChatboxSettingsPage(request.tab.url)) {
           const customCSS: string = await chrome.storage.local
             .get(request.overlay.localStorageKey)
