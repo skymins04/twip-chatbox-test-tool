@@ -214,7 +214,7 @@
               {@html `<style>${
                 selectedManualsavedOverlayCSSContent
                   .replace(/\\n/g, '')
-                  .replace(/\$font_sizepx/g, '12px')
+                  .replace(/\$font_sizepx/g, '10px')
                   .replace(/\$font_face/g, 'Nanum Gothic')
                   .replace(/\$background_color/, 'rgba(0,0,0,0)')
                   .replace(/\$text_color/, '#000000')
