@@ -43,7 +43,7 @@
 
 크롬웹스토어에 게시된 [**"Twip chatbox test tool"**](https://chrome.google.com/webstore/detail/twip-chatbox-test-tool/dmpokkhjjinmldokleiiibigbieikdoa) 확장프로그램을 "Chrome에 추가" 버튼을 클릭하여 크롬 브라우저에 간편히 설치할 수 있습니다
 
-![Twip Chatbox test tool Chrome WebStore](/readme/readme_1.png)
+![Twip Chatbox test tool Chrome WebStore](/readme/readme_2.png)
 
 ### 3-2. 압축파일을 이용하여 설치
 
